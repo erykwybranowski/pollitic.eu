@@ -53,11 +53,11 @@ export class PartyService {
   }
 
   // Method to get parties based on the country
-  getParties(country: Country): Observable<Party[]> {
+  getParties(country: string): Observable<Party[]> {
     if (environment.production) {
-      return this.http.get<Party[]>(`${environment.apiUrl}/parties?countryCode=${country.countryCode}`);
+      return this.http.get<Party[]>(`${environment.apiUrl}/parties?countryCode=${country}`);
     } else {
-      const ropfFilePath = `${environment.localDataPath}${country.countryCode}.ropf`;
+      const ropfFilePath = `${environment.localDataPath}${country}.ropf`;
 
       return this.readLocalFile(ropfFilePath).pipe(
         switchMap((partyLines: string[]) => {
@@ -110,7 +110,7 @@ export class PartyService {
   }
 
   // Parse a single line from the .ropf file and create a Party object
-  private parsePartyLine(line: string, country: Country, id: number): Party {
+  private parsePartyLine(line: string, country: string, id: number): Party {
     const stringId = line.split(':')[0].trim(); // Example: "N"
     const acronym = this.extractField(line, '•A:'); // Example: ".N"
     const englishName = this.extractField(line, '•EN:'); // Example: "Modern"
@@ -124,7 +124,7 @@ export class PartyService {
       acronym: acronym,
       englishName: englishName,
       localName: localName,
-      countryCode: country.countryCode,
+      countryCode: country,
       CHES_EU: null,
       CHES_Economy: null,
       CHES_Progress: null,
@@ -164,6 +164,9 @@ export class PartyService {
   private updateCHESDataForParties(parties: Party[], chesData: any[]): void {
     parties.forEach(party => {
       const matchingCHESData = chesData.find(data => {
+        if (data.countryCode !== party.countryCode) {
+          return false;
+        }
         // Split the acronym field from the Excel file by "/"
         const acronyms = data.acronym.split('/').map((acr: string) => acr.trim());
 
@@ -212,7 +215,8 @@ export class PartyService {
         const columns = line.split(';');
         if (columns.length > 1) { // Ensure there are enough columns
           chesData.push({
-            acronym: columns[3], // Adjust according to the correct index
+            countryCode: columns[2],
+            acronym: columns[3],
             CHES_EU: columns[7],
             CHES_Economy: columns[11],
             CHES_Progress: columns[15],

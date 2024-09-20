@@ -1,0 +1,8 @@
+<div class="country-list">
+  <h2>Select a Country</h2>
+  <ul>
+    <li *ngFor="let country of countries" (click)="goToCountry(country.countryCode)">
+      {{ country.name }}
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,18 @@
+<div class="party-list">
+  <h2>Parties in {{ countryCode }}</h2>
+  <ul>
+    <li *ngFor="let party of parties">
+      <div class="party-details">
+        <h3>{{ party.stringId }}</h3>
+        <p><strong>Acronym:</strong> {{ party.acronym }}</p>
+        <p><strong>englishName:</strong> {{ party.englishName }}</p>
+        <p><strong>localName:</strong> {{ party.localName }}</p>
+        <p><strong>CHES_EU:</strong> {{ party.CHES_EU }}</p>
+        <p><strong>CHES_Economy:</strong> {{ party.CHES_Economy }}</p>
+        <p><strong>CHES_Progress:</strong> {{ party.CHES_Progress }}</p>
+        <p><strong>CHES_Liberal:</strong> {{ party.CHES_Liberal }}</p>
+        <!-- Add more attributes as needed -->
+      </div>
+    </li>
+  </ul>
+</div>
