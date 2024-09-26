@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import {Observable, of, switchMap} from 'rxjs';
 import { map } from 'rxjs/operators';
+import {Group} from "../models/group.model";
+import {Color} from "../models/color.model";
 
 @Injectable({
   providedIn: 'root'
@@ -62,10 +64,17 @@ export class PartyService {
       return this.readLocalFile(ropfFilePath).pipe(
         switchMap((partyLines: string[]) => {
           let partyId = 1; // Initialize party ID counter
-          const parties: Party[] = partyLines.map(line => this.parsePartyLine(line, country, partyId++));
+          const existingParties: Party[] = []; // Initialize existing parties list
 
-          // Read CHES data from the new CSV file
-          return this.readCHESData().pipe( // Call the CHES method here without using country code
+          // Parse each line, update the existingParties list after each party is parsed
+          const parties: Party[] = partyLines.map(line => {
+            const party = this.parsePartyLine(line, country, partyId++, existingParties); // Pass existingParties for sub-party lookup
+            existingParties.push(party); // Add the newly parsed party to the existingParties list
+            return party;
+          });
+
+          // Read CHES data from the new CSV file and update parties with CHES info
+          return this.readCHESData().pipe(
             map((chesData: any[]) => {
               this.updateCHESDataForParties(parties, chesData);
               return parties; // Return the list of parties as an Observable
@@ -75,6 +84,7 @@ export class PartyService {
       );
     }
   }
+
 
 
   // Helper to read local .ropf file (simulate this)
@@ -110,54 +120,122 @@ export class PartyService {
   }
 
   // Parse a single line from the .ropf file and create a Party object
-  private parsePartyLine(line: string, country: string, id: number): Party {
-    const stringId = line.split(':')[0].trim(); // Example: "N"
-    const acronym = this.extractField(line, '•A:'); // Example: ".N"
-    const englishName = this.extractField(line, '•EN:'); // Example: "Modern"
+  private parsePartyLine(line: string, country: string, id: number, existingParties: Party[]): Party {
+    const stringId = line.split(':')[0].trim();
+    const acronym = this.extractField(line, '•A:') || "Error";
+    const englishName = this.extractField(line, '•EN:') || "Error";
 
     // Look for any "•" marker that is not "•EN" and use it for the localName
-    const localName = this.extractLocalName(line) || '';
+    const localNames = this.extractLocalNames(line);  // Updated to handle multiple local names
+
+    // Look for the number of MPs using the "•MP" marker
+    const mp = this.extractField(line, '•MP:') ? parseInt(this.extractField(line, '•MP:')!, 10) : null;
+
+    // Look for sub-parties using the "•SUB" marker
+    const subParties = this.extractSubParties(line, existingParties);
+
+    // Check for "•GOV" or "•SUP" marker to fill the role field
+    let role = null;
+    if (line.includes('•GOV')) {
+      role = 'Gov';
+    } else if (line.includes('•SUP')) {
+      role = 'Sup';
+    }
+
+    // Apply role to sub-parties recursively if a role is present
+    if (role && subParties) {
+      this.applyRoleToSubParties(subParties, role);
+    }
+
+    // Look for the group using the "•GROUP" marker
+    const group = this.extractField(line, '•GROUP:');
+    let groupObject = group ? this.getGroup(group) : null;
+
+    // If the party has sub-parties and no group of its own, inherit groups from sub-parties
+    let uniqueGroups = new Set<Group>();  // Using Set to avoid duplicates
+
+    if (!groupObject && subParties) {
+      const uniqueGroupIdentifiers = new Set<string>();  // Store unique group acronyms or IDs
+      subParties.forEach(subParty => {
+        if (subParty.group) {
+          subParty.group.forEach(group => {
+            if (!uniqueGroupIdentifiers.has(group.acronym)) {
+              uniqueGroupIdentifiers.add(group.acronym);  // Add the group identifier to the Set
+              uniqueGroups.add(group);  // Store the actual Group object
+            }
+          });
+        }
+      });
+    }
 
     return {
       id: id,
       stringId: stringId,
       acronym: acronym,
       englishName: englishName,
-      localName: localName,
+      localName: localNames,  // Now supports multiple local names
       countryCode: country,
       CHES_EU: null,
       CHES_Economy: null,
       CHES_Progress: null,
-      CHES_Liberal: null
+      CHES_Liberal: null,
+      subParties: subParties,  // Subparties populated based on stringIds
+      group: groupObject ? new Set<Group>([groupObject]) : uniqueGroups,  // Inherit groups from sub-parties if no group is defined for the parent party
+      mp: mp,  // Number of MPs
+      role: role  // Role of the party, if any
     };
   }
 
-  private extractLocalName(line: string): string | null {
-    const regex = /•([A-Z]{2,3}):\s*(.*?)(?=•|$)/g;
+
+  private applyRoleToSubParties(subParties: Party[], role: string): void {
+    subParties.forEach(subParty => {
+      subParty.role = role;  // Apply the role to the sub-party
+
+      // Recursively apply the role to any sub-parties of this sub-party
+      if (subParty.subParties) {
+        this.applyRoleToSubParties(subParty.subParties, role);
+      }
+    });
+  }
+
+  // Method to extract sub-parties using the stringIds
+  private extractSubParties(line: string, existingParties: Party[]): Party[] | null {
+    const subPartiesString = this.extractField(line, '•SUB:');
+    if (!subPartiesString) {
+      return null;
+    }
+
+    const subPartyIds = subPartiesString.split(',').map(id => id.trim());
+    const subParties = existingParties.filter(party => subPartyIds.includes(party.stringId));
+
+    return subParties.length > 0 ? subParties : null;
+  }
+
+// Method to extract multiple local names
+  private extractLocalNames(line: string): string[] | null {
+    const regex = /•([A-Z]{2,4}):\s*(.*?)(?=•|$)/g;
     let match;
+    const localNames: string[] = [];
 
     // Loop through all matches and ensure it's not "EN"
     while ((match = regex.exec(line)) !== null) {
       const marker = match[1];
       const value = match[2].trim();
 
-      if (marker !== 'EN') {
-        return value; // Return the value of the local name if not "EN"
+      // Collect all local names that are not 'EN' or other known markers like 'GROUP', 'MP', etc.
+      if (marker !== 'EN' && marker !== 'SUB' && marker !== 'GROUP' && marker !== 'MP' && marker !== 'GOV' && marker !== 'SUP') {
+        localNames.push(value);
       }
     }
 
-    return null; // Return null if no local name is found
+    return localNames.length > 0 ? localNames : null;
   }
 
-
+// Method to extract a field based on a marker
   private extractField(line: string, marker: string): string | null {
-    const index = line.indexOf(marker);
-    if (index !== -1) {
-      const start = index + marker.length;
-      const end = line.indexOf('•', start); // Find the next marker or the end of the string
-      return line.substring(start, end !== -1 ? end : undefined).trim();
-    }
-    return null;
+    const regex = new RegExp(`${marker}(.*?)(?=•|$)`);
+    const match = line.match(regex);
+    return match ? match[1].trim() : null;
   }
 
   // Method to update CHES data for the Party objects
@@ -229,7 +307,68 @@ export class PartyService {
     return chesData;
   }
 
-
+  getGroup(acronym: string): Group | null {
+    switch (acronym) {
+      case "EPP":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "European People's Party",
+          color: new class implements Color { R = 52; G = 143; B = 235;}
+        }
+      case "ECR":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "European Conservatives and Reformists",
+          color: new class implements Color { R = 39; G = 44; B = 186;}
+        }
+      case "RE":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Renew Europe",
+          color: new class implements Color { R = 209; G = 203; B = 27;}
+        }
+      case "GREENS":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Greens/European Free Alliance",
+          color: new class implements Color { R = 27; G = 209; B = 36;}
+        }
+      case "S&D":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Progressive Alliance of Socialists and Democrats",
+          color: new class implements Color { R = 219; G = 58; B = 46;}
+        }
+      case "LEFT":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Progressive Alliance of Socialists and Democrats",
+          color: new class implements Color { R = 138; G = 21; B = 28;}
+        }
+      case "PfE":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Patriots for Europe",
+          color: new class implements Color { R = 49; G = 19; B = 97;}
+        }
+      case "ESN":
+        return {
+          id: 1,
+          acronym: acronym,
+          name: "Europe of Sovereign Nations",
+          color: new class implements Color { R = 17; G = 48; B = 77;}
+        }
+      default:
+        return null;
+    }
+  }
 
 
 }

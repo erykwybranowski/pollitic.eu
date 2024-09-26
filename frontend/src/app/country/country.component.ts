@@ -2,13 +2,14 @@ import {Component, OnInit} from '@angular/core';
 import {Party} from "../models/party.model";
 import {ActivatedRoute} from "@angular/router";
 import {PartyService} from "../services/party.service";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-country',
   standalone: true,
   imports: [
-    NgForOf
+    NgForOf,
+    NgIf
   ],
   templateUrl: './country.component.html',
   styleUrl: './country.component.scss'

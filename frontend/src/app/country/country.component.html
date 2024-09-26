@@ -1,3 +1,4 @@
+<script src="../models/party.model.ts"></script>
 <div class="party-list">
   <h2>Parties in {{ countryCode }}</h2>
   <ul>
@@ -11,6 +12,14 @@
         <p><strong>CHES_Economy:</strong> {{ party.CHES_Economy }}</p>
         <p><strong>CHES_Progress:</strong> {{ party.CHES_Progress }}</p>
         <p><strong>CHES_Liberal:</strong> {{ party.CHES_Liberal }}</p>
+        <p><strong>subParties:</strong></p>
+          <p *ngFor="let party of party.subParties">  -{{party.acronym}}</p>
+        <p><strong>group:</strong></p>
+          <div *ngIf="party.group">
+            <p *ngFor="let group of party.group">  -{{group.acronym}}</p>
+          </div>
+        <p><strong>mp:</strong> {{ party.mp }}</p>
+        <p><strong>role:</strong> {{ party.role }}</p>
         <!-- Add more attributes as needed -->
       </div>
     </li>
