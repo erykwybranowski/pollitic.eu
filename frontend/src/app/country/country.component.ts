@@ -3,13 +3,15 @@ import {Party} from "../models/party.model";
 import {ActivatedRoute} from "@angular/router";
 import {PartyService} from "../services/party.service";
 import {NgForOf, NgIf} from "@angular/common";
+import {PartyGraphComponent} from "../party-graph/party-graph.component";
 
 @Component({
   selector: 'app-country',
   standalone: true,
   imports: [
     NgForOf,
-    NgIf
+    NgIf,
+    PartyGraphComponent
   ],
   templateUrl: './country.component.html',
   styleUrl: './country.component.scss'

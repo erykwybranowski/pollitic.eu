@@ -252,7 +252,6 @@ export class PartyService {
         return acronyms.some((acronym: string | null) => {
           return acronym === party.acronym ||
             acronym === party.englishName ||
-            acronym === party.localName ||
             acronym === party.stringId;
         });
       });
@@ -263,10 +262,67 @@ export class PartyService {
         party.CHES_Economy = matchingCHESData.CHES_Economy;
         party.CHES_Progress = matchingCHESData.CHES_Progress;
         party.CHES_Liberal = matchingCHESData.CHES_Liberal;
+      } else if (party.subParties && party.subParties.length > 0) {
+        // If no CHES data found, but there are sub-parties, aggregate their CHES data
+
+        // Initialize arrays to store ranges of CHES values
+        let chesEU: number[] = [];
+        let chesEconomy: number[] = [];
+        let chesProgress: number[] = [];
+        let chesLiberal: number[] = [];
+
+        // Helper function to handle both single values and ranges
+        const addValueToRange = (range: number[], value: number | number[]) => {
+          if (Array.isArray(value)) {
+            range.push(...value); // Add both min and max if it's a range
+          } else {
+            range.push(value); // Add the single value
+          }
+        };
+
+        // Iterate over sub-parties to collect their CHES data
+        party.subParties.forEach(subParty => {
+          if (subParty.CHES_EU !== null && subParty.CHES_EU !== undefined) {
+            addValueToRange(chesEU, subParty.CHES_EU);
+          }
+          if (subParty.CHES_Economy !== null && subParty.CHES_Economy !== undefined) {
+            addValueToRange(chesEconomy, subParty.CHES_Economy);
+          }
+          if (subParty.CHES_Progress !== null && subParty.CHES_Progress !== undefined) {
+            addValueToRange(chesProgress, subParty.CHES_Progress);
+          }
+          if (subParty.CHES_Liberal !== null && subParty.CHES_Liberal !== undefined) {
+            addValueToRange(chesLiberal, subParty.CHES_Liberal);
+          }
+        });
+
+        // If there are values in the arrays, set them as ranges for the parent party
+        if (chesEU.length > 0) {
+          const minEU = Math.min(...chesEU);
+          const maxEU = Math.max(...chesEU);
+          party.CHES_EU = minEU === maxEU ? minEU : [minEU, maxEU]; // Single value if equal
+        }
+
+        if (chesEconomy.length > 0) {
+          const minEconomy = Math.min(...chesEconomy);
+          const maxEconomy = Math.max(...chesEconomy);
+          party.CHES_Economy = minEconomy === maxEconomy ? minEconomy : [minEconomy, maxEconomy];
+        }
+
+        if (chesProgress.length > 0) {
+          const minProgress = Math.min(...chesProgress);
+          const maxProgress = Math.max(...chesProgress);
+          party.CHES_Progress = minProgress === maxProgress ? minProgress : [minProgress, maxProgress];
+        }
+
+        if (chesLiberal.length > 0) {
+          const minLiberal = Math.min(...chesLiberal);
+          const maxLiberal = Math.max(...chesLiberal);
+          party.CHES_Liberal = minLiberal === maxLiberal ? minLiberal : [minLiberal, maxLiberal];
+        }
       }
     });
   }
-
 
   private readCHESData(): Observable<any[]> {
     const filePath = `${environment.localDataPath}CHES.txt`; // Adjust this if needed
@@ -276,7 +332,6 @@ export class PartyService {
       })
     );
   }
-
 
   private parseCHESData(content: string): any[] {
     const chesData: any[] = [];
@@ -297,8 +352,8 @@ export class PartyService {
             acronym: columns[3],
             CHES_EU: columns[7],
             CHES_Economy: columns[11],
-            CHES_Progress: columns[15],
-            CHES_Liberal: columns[20]
+            CHES_Progress: columns[14],
+            CHES_Liberal: columns[17]
           });
         }
       }

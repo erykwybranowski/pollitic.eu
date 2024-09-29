@@ -7,10 +7,10 @@ export interface Party {
   englishName: string;
   countryCode: string | null;
   localName: string[] | null;
-  CHES_EU: number | null;
-  CHES_Economy: number | null;
-  CHES_Progress: number | null;
-  CHES_Liberal: number | null;
+  CHES_EU: number | number[] | null;
+  CHES_Economy: number | number[] | null;
+  CHES_Progress: number | number[] | null;
+  CHES_Liberal: number | number[] | null;
   subParties: Party[] | null;
   group: Set<Group> | null;
   mp: number | null;
