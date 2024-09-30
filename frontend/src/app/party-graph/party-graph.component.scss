@@ -1,104 +1,159 @@
-$center-width: 100px;
+$center-width: 50px;
 $center-height: 400px;
-$square-size: 100px;
-$blue-color: #1c1cae;
-$yellow-color: #a18d0e;
-$light-blue-color: #85c8df;
-$light-yellow-color: #f1f175;
+$square-height: 100px;
+$square-width: 50px;
 
 .party-graph {
   position: relative;
-  width: 700px;
+  width: 350px;
   height: 400px;
+  // Background layers: grid on top, colors beneath
+  background:
+    linear-gradient(to right, rgba(224, 247, 250, 0.25) 0%, rgba(224, 247, 250, 0.25) 150px, transparent 150px, transparent 200px, rgba(255, 253, 231, 0.25) 200px, rgba(255, 253, 231, 0.25) 100%), /* Light blue left, light yellow right */
+    linear-gradient(to right, grey 1px, transparent 1px), /* Vertical grid lines */
+    linear-gradient(to bottom, grey 1px, transparent 1px); /* Horizontal grid lines */
 
-  .center-graph {
+  background-size:
+    100% 100%,  /* Color backgrounds fill the whole graph */
+    calc(100% / 7) calc(100% / 4), /* Grid for vertical lines */
+    calc(100% / 7) calc(100% / 4); /* Grid for horizontal lines */
+
+  border-right: 1px solid grey;  // Ensures rightmost vertical line is visible
+  border-bottom: 1px solid grey;  // Ensures bottommost horizontal line is visible
+  left: 120px; /* Move the graph 120px to the right */
+
+  /* Left side icons */
+  .left-icons {
     position: absolute;
-    left: 300px;
+    left: -100px; /* Moves the icons outside the graph to the left */
+    top: 0; /* Aligns the icons vertically with the graph */
     width: $center-width;
-    height: $center-height;
+    height: 100%; /* Ensure container takes full height of the graph */
 
-    .center-square {
-      width: $square-size;
-      height: $square-size;
-      background-color: #b3b3b3;
-      margin-bottom: 0px;
-      z-index: 1;  // Grey rectangle at the bottom
-    }
-
-    .center-icon {
+    .icon-left-1, .icon-left-2, .icon-left-3, .icon-left-4 {
       position: absolute;
-      left: 15px;  // Center the 70px icon in the 100px square ( (100px - 70px) / 2 = 15px )
+      left: 15px; /* Center the icon in the 100px square */
       width: 70px;
       height: 70px;
-      z-index: 4;  // Icons at the very top
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-
-      &.icon-economy {
-        top: 15px;  // Centered vertically
-        background-image: url('/assets/icons/economy.png');
-      }
-
-      &.icon-liberal {
-        top: 115px;
-        background-image: url('/assets/icons/liberal.png');
-      }
-
-      &.icon-progress {
-        top: 215px;
-        background-image: url('/assets/icons/progress.png');
-      }
-
-      &.icon-eu {
-        top: 315px;
-        background-image: url('/assets/icons/eu.png');
-      }
     }
+
+    .icon-left-1 {
+      top: 15px;
+      background-image: url('/assets/icons/socialism.png');
+    }
+
+    .icon-left-2 {
+      top: 115px;
+      background-image: url('/assets/icons/liberalism.png');
+    }
+
+    .icon-left-3 {
+      top: 215px;
+      background-image: url('/assets/icons/progressivism.png');
+    }
+
+    .icon-left-4 {
+      top: 315px;
+      background-image: url('/assets/icons/eu.png');
+    }
+  }
+
+  /* Right side icons */
+  .right-icons {
+    position: absolute;
+    right: -60px; /* Moves the icons outside the graph to the right */
+    top: 0; /* Aligns the icons vertically with the graph */
+    width: $center-width;
+    height: 100%; /* Ensure container takes full height of the graph */
+
+    .icon-right-1, .icon-right-2, .icon-right-3, .icon-right-4 {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .icon-right-1 {
+      top: 15px;
+      background-image: url('/assets/icons/capitalism.png');
+    }
+
+    .icon-right-2 {
+      top: 115px;
+      background-image: url('/assets/icons/authoritarianism.png');
+    }
+
+    .icon-right-3 {
+      top: 215px;
+      background-image: url('/assets/icons/conservatism.png');
+    }
+
+    .icon-right-4 {
+      top: 315px;
+      background-image: url('/assets/icons/nationalism.png');
+    }
+  }
+
+  .center-graph {
+    position: absolute;
+    left: 150px;
+    width: $center-width;
+    height: $center-height;
+    background-color: var(--background-color);
+    border-right: 1px solid grey;  // Ensures rightmost vertical line is visible
+    border-left: 1px solid grey;  // Ensures rightmost vertical line is visible
   }
 
   .value-graph {
     position: relative;
-    height: $square-size;
+    height: $square-height;
     display: flex;
     align-items: center;
 
     .connector {
-      height: 70px;
+      height: 50px;
       position: absolute;
-      top: 15px;  // Centered within 100px height
+      top: 25px;  // Centered within 100px height
       background-color: transparent;
       z-index: 2;  // Ensure connectors are below squares but above the center squares
 
       &.blue {
-        background-color: $light-blue-color;
+        background-color: var(--accent-blue-color);
       }
 
       &.yellow {
-        background-color: $light-yellow-color;
+        background-color: var(--accent-yellow-color);
       }
 
       &.gradient {
-        background: linear-gradient(to right, $light-blue-color, $light-yellow-color);
+        background: linear-gradient(to right, var(--accent-blue-color), var(--accent-yellow-color));
       }
     }
 
     .value-square {
-      width: $square-size;
-      height: $square-size;
+      width: $square-width;
+      height: $square-height;
       position: absolute;
       z-index: 3;  // Value squares below icons and connectors but above the grey rectangle
+      transform: scaleY(0.7) + scaleX(0.4);  // Scale down to 70% of original size
+      //transform: scaleX(0.5);  // Scale down to 70% of original size
+      transform-origin: center;  // Scale from the center of each square
 
       &.blue {
-        background-color: $blue-color;
+        background-color: var(--main-blue-color);
       }
 
       &.yellow {
-        background-color: $yellow-color;
+        background-color: var(--main-yellow-color);
       }
 
       &.center {
-        background: linear-gradient(to right, $blue-color, $yellow-color);
+        background: linear-gradient(to right, var(--main-blue-color), var(--main-yellow-color));
       }
     }
   }

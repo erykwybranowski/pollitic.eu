@@ -1,17 +1,13 @@
 <div class="party-graph">
-  <div class="center-graph">
-    <!-- Four center grey squares -->
-    <div class="center-square"></div>
-    <div class="center-square"></div>
-    <div class="center-square"></div>
-    <div class="center-square"></div>
-
-    <!-- Icons as separate elements -->
-    <div class="center-icon icon-economy"></div>
-    <div class="center-icon icon-liberal"></div>
-    <div class="center-icon icon-progress"></div>
-    <div class="center-icon icon-eu"></div>
+  <!-- Left-side icons -->
+  <div class="left-icons">
+    <div class="icon-left-1"></div>
+    <div class="icon-left-2"></div>
+    <div class="icon-left-3"></div>
+    <div class="icon-left-4"></div>
   </div>
+
+  <div class="center-graph"></div>
 
   <!-- CHES Values - Horizontal columns for each value -->
   <div class="value-graph economy-graph">
@@ -52,5 +48,13 @@
          [ngClass]="connector.class"
          [style.width.px]="connector.width"
          [style.left.px]="connector.startPosition"></div>
+  </div>
+
+  <!-- Right-side icons -->
+  <div class="right-icons">
+    <div class="icon-right-1"></div>
+    <div class="icon-right-2"></div>
+    <div class="icon-right-3"></div>
+    <div class="icon-right-4"></div>
   </div>
 </div>

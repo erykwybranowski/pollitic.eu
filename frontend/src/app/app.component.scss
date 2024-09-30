@@ -27,7 +27,7 @@ header {
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: var(--main-color);
+  background-color: var(--main-blue-color);
   color: #fff;
   padding: 0 0;
   z-index: 1000; /* Ensure the header is above other content */
@@ -63,7 +63,7 @@ main {
 
 footer {
   width: 100%;
-  background-color: var(--main-color);
+  background-color: var(--main-blue-color);
   color: #fff;
   padding-left: 20px; /* Added padding to the sides */
   padding-right: 20px; /* Added padding to the sides */
