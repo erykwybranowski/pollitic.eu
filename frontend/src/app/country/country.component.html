@@ -1,29 +1,27 @@
-<script src="../models/party.model.ts"></script>
 <div class="party-list">
   <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
-  <app-support-graph *ngIf="getPartiesWithMPs().length > 0" [parties]="getPartiesWithMPs()"></app-support-graph>
-  <ul>
-    <li *ngFor="let party of parties">
+
+  <!-- Support Graph Component -->
+  <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()"></app-support-graph>
+
+  <!-- List of Parties with MPs -->
+  <div class="party-container">
+    <div *ngFor="let party of getPartiesForList()" class="party-item" [ngStyle]="{'margin-left': (party.subLevel * 50) + 'px'}">
       <div class="party-details">
-        <h3>{{ party.stringId }}</h3>
-        <p><strong>Acronym:</strong> {{ party.acronym }}</p>
-        <p><strong>englishName:</strong> {{ party.englishName }}</p>
-        <p><strong>localName:</strong> {{ party.localName }}</p>
-        <p><strong>CHES_EU:</strong> {{ party.CHES_EU }}</p>
-        <p><strong>CHES_Economy:</strong> {{ party.CHES_Economy }}</p>
-        <p><strong>CHES_Progress:</strong> {{ party.CHES_Progress }}</p>
-        <p><strong>CHES_Liberal:</strong> {{ party.CHES_Liberal }}</p>
-        <p><strong>subParties:</strong></p>
-          <p *ngFor="let party of party.subParties">  -{{party.acronym}}</p>
-        <p><strong>group:</strong></p>
-          <div *ngIf="party.group">
-            <p *ngFor="let group of party.group">  -{{group.acronym}}</p>
+        <div class="party-color-bar" [ngStyle]="{'background': getPartyColorGradient(party)}"></div>
+        <div class="party-info">
+          <h3>{{ party.acronym }}</h3>
+          <p *ngIf="party.localName">{{ party.localName.join(', ') }}</p>
+          <div class="party-groups" *ngIf="party.group && party.group.size>0">
+            <p>{{ getPartyGroups(party) }}</p>
           </div>
-        <p><strong>mp:</strong> {{ party.mp }}</p>
-        <p><strong>role:</strong> {{ party.role }}</p>
-        <!-- Add more attributes as needed -->
+          <p>Liczba posłów: {{ party.mp || 0 }}</p>
+          <p>Rola: {{ getRoles(party) }}</p>
+        </div>
+        <div class="party-graph-container">
+          <app-party-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="party-graph"></app-party-graph>
+        </div>
       </div>
-      <app-party-graph [party]="party"></app-party-graph>
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>

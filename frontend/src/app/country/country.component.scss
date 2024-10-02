@@ -4,24 +4,62 @@
     margin-bottom: 20px;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
+  .party-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
-    li {
-      margin-bottom: 20px;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
+  .party-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
 
-      .party-details {
-        h3 {
-          margin: 0;
-        }
+  .party-details {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    position: relative;
+  }
 
-        p {
-          margin: 5px 0;
-        }
-      }
+  .party-color-bar {
+    width: 10px;
+    min-height: 200px;
+    margin-right: 10px;
+  }
+
+  .party-info {
+    flex-grow: 1;
+
+    h3 {
+      margin: 0 0 5px; // Smaller margin between acronym and local name
     }
+
+    p {
+      margin: 5px 0; // Default margin for all other lines
+    }
+
+    p:first-of-type {
+      margin: 10px 0 5px; // Larger margin before the rest of the lines
+    }
+  }
+
+  .party-graph-container {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+
+    // Set the height of the party graph container to 200px
+    height: 200px;
+
+    // Adjust the position to account for the icons extending out of the right border
+    margin-right: 20px; // Adjust this value based on how much space you need
+  }
+
+  // Optional: You may want to set the height of the actual party graph component if needed
+  app-party-graph {
+    transform: scale(0.5); /* Scale down PartyGraphComponent */
+    transform-origin: top; /* Scale from the top */
   }
 }

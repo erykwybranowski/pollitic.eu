@@ -137,9 +137,9 @@ export class PartyService {
     // Check for "•GOV" or "•SUP" marker to fill the role field
     let role = new Set<string>;
     if (line.includes('•GOV')) {
-      role.add('Gov');
+      role.add('Rząd');
     } else if (line.includes('•SUP')) {
-      role.add('Sup');
+      role.add('Wsparcie');
     }
 
     // Apply role to sub-parties recursively if a role is present

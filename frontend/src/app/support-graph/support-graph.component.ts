@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Party} from "../models/party.model";
 import {PartyGraphComponent} from "../party-graph/party-graph.component";
 import {NgForOf} from "@angular/common";
@@ -10,12 +10,14 @@ import {NgForOf} from "@angular/common";
     PartyGraphComponent,
     NgForOf
   ],
-  templateUrl: './support-graph-component.component.html',
-  styleUrl: './support-graph-component.component.scss'
+  templateUrl: './support-graph.component.html',
+  styleUrl: './support-graph.component.scss'
 })
-export class SupportGraphComponent implements OnInit {
+export class SupportGraphComponent implements OnInit, AfterViewInit {
   @Input() parties: Party[] = []; // List of Party objects
   @Input() supportData: { acronym: string, support: number }[] = []; // List of support data pairs [acronym - support number]
+  @ViewChild('supportGraphContainer') supportGraphContainer!: ElementRef;
+  @ViewChild('supportGraph') supportGraph!: ElementRef;
 
   maxNumber: number = 0;
   sortedParties: (Party & { support?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
@@ -24,6 +26,18 @@ export class SupportGraphComponent implements OnInit {
     console.log("START")
     console.log(this.parties)
     this.processData();
+  }
+
+  ngAfterViewInit() {
+    const containerWidth = this.supportGraphContainer.nativeElement.offsetWidth;
+    const graphWidth = this.supportGraph.nativeElement.scrollWidth;
+
+    // If the graph is smaller than the container, center it
+    if (graphWidth < containerWidth) {
+      this.supportGraphContainer.nativeElement.style.justifyContent = 'center';
+    } else {
+      this.supportGraphContainer.nativeElement.style.justifyContent = 'flex-start';
+    }
   }
 
   processData() {
@@ -54,24 +68,11 @@ export class SupportGraphComponent implements OnInit {
   }
 
   calculateChesScore(party: Party): number {
-    console.log(party.acronym);
-
     const economy = Array.isArray(party.CHES_Economy) ? (Number(party.CHES_Economy[0]) + Number(party.CHES_Economy[1])) / 2 : Number(party.CHES_Economy);
-    console.log(economy);
-
     const progress = Array.isArray(party.CHES_Progress) ? (Number(party.CHES_Progress[0]) + Number(party.CHES_Progress[1])) / 2 : Number(party.CHES_Progress);
-    console.log(progress);
-
     const liberal = Array.isArray(party.CHES_Liberal) ? (Number(party.CHES_Liberal[0]) + Number(party.CHES_Liberal[1])) / 2 : Number(party.CHES_Liberal);
-    console.log(liberal);
-
     const eu = Array.isArray(party.CHES_EU) ? (Number(party.CHES_EU[0]) + Number(party.CHES_EU[1])) / 2 : Number(party.CHES_EU);
-    console.log(eu);
-
-    const result = (economy + progress) * (8 + liberal + eu);
-    console.log(result);
-
-    return result;
+    return (economy + progress) * (8 + liberal + eu);
   }
 
   getPartyHeight(party: Party  & { support?: number }): string {
@@ -113,6 +114,6 @@ export class SupportGraphComponent implements OnInit {
     if (party.role && party.role.size > 0) {
       return Array.from(party.role).join('/');
     }
-    return '-';
+    return 'Opozycja';
   }
 }

@@ -28,13 +28,4 @@ export class AppComponent {
       this.router.navigate(['/']);
     }
   }
-
-  // ngOnInit() {
-  //   // Check if there is a logged-in user
-  //   const currentUser = this.authService.currentUserValue;
-  //   if (!currentUser || this.authService.isTokenExpired(currentUser.token)) {
-  //     this.authService.logout(); // Clear invalid token
-  //     this.router.navigate(['/login']);
-  //   }
-  // }
 }

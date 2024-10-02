@@ -1,18 +1,28 @@
-.support-graph {
+.support-graph-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-top: 40px;
+  height: 550px;
+  white-space: nowrap;
   display: flex;
-  justify-content: center;
-  align-items: flex-end; /* Align items at the bottom of the graph */
-  padding: 20px;
+}
+
+.support-graph {
+  display: inline-flex;
+  justify-content: flex-start; /* Start aligned by default */
+  align-items: flex-end;
   gap: 30px;
-  height: 400px; /* Ensure enough height is available */
-  margin-bottom: 120px;
+  padding-left: 50px;
+  padding-right: 50px;
+  height: 400px;
+  min-width: max-content; /* Prevent shrinking below content size */
 }
 
 .party-column {
   display: flex;
   flex-direction: column-reverse; /* Stack items in reverse order */
   align-items: center;
-  max-width: 100px; /* Adjust width based on number of columns */
+  width: 100px; /* Fixed width for each column */
   height: 80%; /* Ensures full height of the container */
 
   .party-bar {
