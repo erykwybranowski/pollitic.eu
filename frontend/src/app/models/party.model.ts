@@ -14,5 +14,5 @@ export interface Party {
   subParties: Party[] | null;
   group: Set<Group> | null;
   mp: number | null;
-  role: string | null;
+  role: Set<string> | null;
 }

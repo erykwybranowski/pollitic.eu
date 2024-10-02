@@ -1,5 +1,5 @@
 $center-width: 50px;
-$center-height: 400px;
+$center-height: 398px;
 $square-height: 100px;
 $square-width: 50px;
 
@@ -9,23 +9,23 @@ $square-width: 50px;
   height: 400px;
   // Background layers: grid on top, colors beneath
   background:
-    linear-gradient(to right, rgba(224, 247, 250, 0.25) 0%, rgba(224, 247, 250, 0.25) 150px, transparent 150px, transparent 200px, rgba(255, 253, 231, 0.25) 200px, rgba(255, 253, 231, 0.25) 100%), /* Light blue left, light yellow right */
-    linear-gradient(to right, grey 1px, transparent 1px), /* Vertical grid lines */
-    linear-gradient(to bottom, grey 1px, transparent 1px); /* Horizontal grid lines */
+    linear-gradient(to right, rgba(184, 246, 255, 0.25) 0%, rgba(184, 246, 255, 0.25) 150px, transparent 150px, transparent 200px, rgba(255, 249, 176, 0.25) 200px, rgba(255, 249, 176, 0.25) 100%), /* Light blue left, light yellow right */
+    linear-gradient(to right, grey 2px, transparent 1px), /* Vertical grid lines */
+    linear-gradient(to bottom, grey 2px, transparent 1px); /* Horizontal grid lines */
 
   background-size:
     100% 100%,  /* Color backgrounds fill the whole graph */
     calc(100% / 7) calc(100% / 4), /* Grid for vertical lines */
     calc(100% / 7) calc(100% / 4); /* Grid for horizontal lines */
 
-  border-right: 1px solid grey;  // Ensures rightmost vertical line is visible
-  border-bottom: 1px solid grey;  // Ensures bottommost horizontal line is visible
-  left: 120px; /* Move the graph 120px to the right */
+  border-right: 2px solid grey;  // Ensures rightmost vertical line is visible
+  border-bottom: 2px solid grey;  // Ensures bottommost horizontal line is visible
+  //left: 120px; /* Move the graph 120px to the right */
 
   /* Left side icons */
   .left-icons {
     position: absolute;
-    left: -100px; /* Moves the icons outside the graph to the left */
+    left: -160px; /* Moves the icons outside the graph to the left */
     top: 0; /* Aligns the icons vertically with the graph */
     width: $center-width;
     height: 100%; /* Ensure container takes full height of the graph */
@@ -64,7 +64,7 @@ $square-width: 50px;
   /* Right side icons */
   .right-icons {
     position: absolute;
-    right: -60px; /* Moves the icons outside the graph to the right */
+    right: -120px; /* Moves the icons outside the graph to the right */
     top: 0; /* Aligns the icons vertically with the graph */
     width: $center-width;
     height: 100%; /* Ensure container takes full height of the graph */
@@ -105,8 +105,9 @@ $square-width: 50px;
     width: $center-width;
     height: $center-height;
     background-color: var(--background-color);
-    border-right: 1px solid grey;  // Ensures rightmost vertical line is visible
-    border-left: 1px solid grey;  // Ensures rightmost vertical line is visible
+    border-right: 2px solid grey;  // Ensures rightmost vertical line is visible
+    border-left: 2px solid grey;  // Ensures rightmost vertical line is visible
+    border-top: 2px solid grey;  // Ensures rightmost vertical line is visible
   }
 
   .value-graph {

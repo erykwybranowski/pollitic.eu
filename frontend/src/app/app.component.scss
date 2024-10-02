@@ -59,6 +59,13 @@ main {
   flex: 1;
   padding-top: 70px; /* Adjust based on the height of the header */
   min-height: calc(100vh - 140px); /* Adjust based on the height of header and footer */
+
+  @media (min-width: 768px) {
+    max-width: 1200px; /* Set max width for larger screens */
+    margin: 0 auto; /* Center the content by auto margins */
+    padding-left: 20px; /* Optional: some padding for nicer layout */
+    padding-right: 20px;
+  }
 }
 
 footer {

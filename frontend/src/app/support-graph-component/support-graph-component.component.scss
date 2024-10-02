@@ -1,0 +1,65 @@
+.support-graph {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align items at the bottom of the graph */
+  padding: 20px;
+  gap: 30px;
+  height: 400px; /* Ensure enough height is available */
+  margin-bottom: 120px;
+}
+
+.party-column {
+  display: flex;
+  flex-direction: column-reverse; /* Stack items in reverse order */
+  align-items: center;
+  max-width: 100px; /* Adjust width based on number of columns */
+  height: 80%; /* Ensures full height of the container */
+
+  .party-bar {
+    width: 100%;
+    position: relative;
+    min-height: 0; /* Allows for no height if needed */
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    .support-label {
+      position: absolute; /* Adjust for better placement */
+      top: -30px; /* Position the label above the party bar */
+      left: 50%; /* Center align the label */
+      transform: translateX(-50%); /* Ensure the label is fully centered */
+      font-size: 20px; /* Increase the size of the label */
+      font-weight: bold;
+      text-align: center;
+    }
+  }
+
+  .party-role {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  .party-acronym {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .party-groups {
+    font-size: 12px;
+  }
+
+  .party-graph-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100px; /* Adjust width to match the scaled-down size */
+    height: 10px; /* Adjust height to reflect scaled size */
+    margin-top: 10px;
+
+    .party-graph {
+      transform: scale(0.3); /* Scale down PartyGraphComponent */
+      transform-origin: top; /* Scale from the top */
+    }
+  }
+}

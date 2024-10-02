@@ -1,0 +1,15 @@
+<div class="support-graph">
+  <div class="party-column" *ngFor="let party of sortedParties">
+    <div class="party-graph-wrapper">
+      <app-party-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="party-graph"></app-party-graph>
+    </div>
+    <div class="party-groups">{{ getPartyGroupAcronyms(party) }}</div>
+    <div class="party-acronym">{{ party.acronym }}</div>
+    <div class="party-role">{{ getRoles(party) }}</div>
+    <div class="party-bar" [style.min-height]="getPartyHeight(party)" [style.background]="getPartyColor(party)">
+      <span class="support-label">
+        {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
+      </span>
+    </div>
+  </div>
+</div>

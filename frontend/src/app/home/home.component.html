@@ -1,8 +1,11 @@
 <div class="country-list">
-  <h2>Select a Country</h2>
-  <ul>
-    <li *ngFor="let country of countries" (click)="goToCountry(country.countryCode)">
-      {{ country.name }}
-    </li>
-  </ul>
+  <h2>Kraje UE</h2>
+  <div class="flag-grid">
+    <div class="flag-row" *ngFor="let row of countryRows">
+      <div class="flag-item" *ngFor="let country of row" (click)="goToCountry(country.countryCode)">
+        <img [src]="getFlagPath(country.countryCode)" [alt]="country.name" class="country-flag" />
+        <span class="country-name">{{ country.name }}</span>
+      </div>
+    </div>
+  </div>
 </div>

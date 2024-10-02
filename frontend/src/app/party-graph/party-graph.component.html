@@ -1,6 +1,6 @@
 <div class="party-graph">
   <!-- Left-side icons -->
-  <div class="left-icons">
+  <div class="left-icons" *ngIf="leftIcons">
     <div class="icon-left-1"></div>
     <div class="icon-left-2"></div>
     <div class="icon-left-3"></div>
@@ -51,7 +51,7 @@
   </div>
 
   <!-- Right-side icons -->
-  <div class="right-icons">
+  <div class="right-icons" *ngIf="rightIcons">
     <div class="icon-right-1"></div>
     <div class="icon-right-2"></div>
     <div class="icon-right-3"></div>

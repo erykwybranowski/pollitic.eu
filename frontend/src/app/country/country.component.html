@@ -1,6 +1,7 @@
 <script src="../models/party.model.ts"></script>
 <div class="party-list">
-  <h2>Parties in {{ countryCode }}</h2>
+  <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
+  <app-support-graph *ngIf="getPartiesWithMPs().length > 0" [parties]="getPartiesWithMPs()"></app-support-graph>
   <ul>
     <li *ngFor="let party of parties">
       <div class="party-details">

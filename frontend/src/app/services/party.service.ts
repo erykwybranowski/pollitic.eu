@@ -135,16 +135,30 @@ export class PartyService {
     const subParties = this.extractSubParties(line, existingParties);
 
     // Check for "•GOV" or "•SUP" marker to fill the role field
-    let role = null;
+    let role = new Set<string>;
     if (line.includes('•GOV')) {
-      role = 'Gov';
+      role.add('Gov');
     } else if (line.includes('•SUP')) {
-      role = 'Sup';
+      role.add('Sup');
     }
 
     // Apply role to sub-parties recursively if a role is present
-    if (role && subParties) {
-      this.applyRoleToSubParties(subParties, role);
+    if (subParties) {
+      if (role.size > 0) {
+        this.applyRoleToSubParties(subParties, role);
+      } else {
+        const uniqueRoles = new Set<string>;
+        subParties.forEach(subParty => {
+          if (subParty.role) {
+            subParty.role.forEach(subRole => {
+              if (!uniqueRoles.has(subRole)) {
+                uniqueRoles.add(subRole);
+                role.add(subRole);
+              }
+            })
+          }
+        })
+      }
     }
 
     // Look for the group using the "•GROUP" marker
@@ -187,7 +201,7 @@ export class PartyService {
   }
 
 
-  private applyRoleToSubParties(subParties: Party[], role: string): void {
+  private applyRoleToSubParties(subParties: Party[], role: Set<string>): void {
     subParties.forEach(subParty => {
       subParty.role = role;  // Apply the role to the sub-party
 
@@ -364,41 +378,6 @@ export class PartyService {
 
   getGroup(acronym: string): Group | null {
     switch (acronym) {
-      case "EPP":
-        return {
-          id: 1,
-          acronym: acronym,
-          name: "European People's Party",
-          color: new class implements Color { R = 52; G = 143; B = 235;}
-        }
-      case "ECR":
-        return {
-          id: 1,
-          acronym: acronym,
-          name: "European Conservatives and Reformists",
-          color: new class implements Color { R = 39; G = 44; B = 186;}
-        }
-      case "RE":
-        return {
-          id: 1,
-          acronym: acronym,
-          name: "Renew Europe",
-          color: new class implements Color { R = 209; G = 203; B = 27;}
-        }
-      case "GREENS":
-        return {
-          id: 1,
-          acronym: acronym,
-          name: "Greens/European Free Alliance",
-          color: new class implements Color { R = 27; G = 209; B = 36;}
-        }
-      case "S&D":
-        return {
-          id: 1,
-          acronym: acronym,
-          name: "Progressive Alliance of Socialists and Democrats",
-          color: new class implements Color { R = 219; G = 58; B = 46;}
-        }
       case "LEFT":
         return {
           id: 1,
@@ -406,16 +385,51 @@ export class PartyService {
           name: "Progressive Alliance of Socialists and Democrats",
           color: new class implements Color { R = 138; G = 21; B = 28;}
         }
+      case "S&D":
+        return {
+          id: 2,
+          acronym: acronym,
+          name: "Progressive Alliance of Socialists and Democrats",
+          color: new class implements Color { R = 219; G = 58; B = 46;}
+        }
+      case "GREENS":
+        return {
+          id: 3,
+          acronym: acronym,
+          name: "Greens/European Free Alliance",
+          color: new class implements Color { R = 27; G = 209; B = 36;}
+        }
+      case "RE":
+        return {
+          id: 4,
+          acronym: acronym,
+          name: "Renew Europe",
+          color: new class implements Color { R = 238; G = 230; B = 1;}
+        }
+      case "EPP":
+        return {
+          id: 5,
+          acronym: acronym,
+          name: "European People's Party",
+          color: new class implements Color { R = 52; G = 143; B = 235;}
+        }
+      case "ECR":
+        return {
+          id: 6,
+          acronym: acronym,
+          name: "European Conservatives and Reformists",
+          color: new class implements Color { R = 39; G = 44; B = 186;}
+        }
       case "PfE":
         return {
-          id: 1,
+          id: 7,
           acronym: acronym,
           name: "Patriots for Europe",
           color: new class implements Color { R = 49; G = 19; B = 97;}
         }
       case "ESN":
         return {
-          id: 1,
+          id: 8,
           acronym: acronym,
           name: "Europe of Sovereign Nations",
           color: new class implements Color { R = 17; G = 48; B = 77;}

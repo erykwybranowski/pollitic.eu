@@ -1,19 +1,22 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Party} from "../models/party.model";
-import {NgClass, NgForOf} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-party-graph',
   standalone: true,
   imports: [
     NgClass,
-    NgForOf
+    NgForOf,
+    NgIf
   ],
   templateUrl: './party-graph.component.html',
   styleUrl: './party-graph.component.scss'
 })
 export class PartyGraphComponent implements OnInit {
   @Input() party!: Party;
+  @Input() leftIcons!: boolean;
+  @Input() rightIcons!: boolean;
 
   economySquares: any[] = [];
   economyConnectors: any[] = [];
