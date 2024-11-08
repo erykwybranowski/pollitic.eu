@@ -3,7 +3,7 @@ $center-height: 398px;
 $square-height: 100px;
 $square-width: 50px;
 
-.party-graph {
+.views-graph {
   position: relative;
   width: 350px;
   height: 400px;
@@ -47,12 +47,12 @@ $square-width: 50px;
 
     .icon-left-2 {
       top: 115px;
-      background-image: url('/assets/icons/liberalism.png');
+      background-image: url('/assets/icons/progressivism.png');
     }
 
     .icon-left-3 {
       top: 215px;
-      background-image: url('/assets/icons/progressivism.png');
+      background-image: url('/assets/icons/liberalism.png');
     }
 
     .icon-left-4 {
@@ -85,12 +85,12 @@ $square-width: 50px;
 
     .icon-right-2 {
       top: 115px;
-      background-image: url('/assets/icons/authoritarianism.png');
+      background-image: url('/assets/icons/conservatism.png');
     }
 
     .icon-right-3 {
       top: 215px;
-      background-image: url('/assets/icons/conservatism.png');
+      background-image: url('/assets/icons/authoritarianism.png');
     }
 
     .icon-right-4 {

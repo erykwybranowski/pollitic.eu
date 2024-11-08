@@ -33,33 +33,81 @@
     flex-grow: 1;
 
     h3 {
-      margin: 0 0 5px; // Smaller margin between acronym and local name
+      margin: 0 0 5px;
     }
 
     p {
-      margin: 5px 0; // Default margin for all other lines
+      margin: 5px 0;
     }
 
     p:first-of-type {
-      margin: 10px 0 5px; // Larger margin before the rest of the lines
+      margin: 10px 0 5px;
     }
   }
 
-  .party-graph-container {
+  .views-graph-container {
     flex-shrink: 0;
     display: flex;
     justify-content: flex-end;
-
-    // Set the height of the party graph container to 200px
     height: 200px;
-
-    // Adjust the position to account for the icons extending out of the right border
-    margin-right: 20px; // Adjust this value based on how much space you need
+    margin-right: 20px;
   }
 
-  // Optional: You may want to set the height of the actual party graph component if needed
-  app-party-graph {
-    transform: scale(0.5); /* Scale down PartyGraphComponent */
-    transform-origin: top; /* Scale from the top */
+  app-views-graph {
+    transform: scale(0.5);
+    transform-origin: top;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .party-item {
+      margin-bottom: 15px;
+    }
+
+    .party-details {
+      padding: 10px;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .party-color-bar {
+      width: 8px;
+      min-height: 100%; /* Extend color bar to full height */
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .party-info {
+      text-align: center;
+
+      h3 {
+        font-size: 16px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+
+    .views-graph-container {
+      justify-content: center;
+      /* Explicit height matching the scaled graph */
+      height: 210px;
+      margin-right: 0;
+      margin-top: 10px;
+    }
+
+    app-views-graph {
+      transform: scale(0.5); /* Fixed scale */
+      margin-bottom: 0; /* Ensure no extra space below graph */
+    }
   }
 }

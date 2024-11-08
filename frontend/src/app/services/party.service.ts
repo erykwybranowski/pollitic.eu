@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Country } from '../models/country.model';
-import { Party } from '../models/party.model';
-import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Country} from '../models/country.model';
+import {Party} from '../models/party.model';
+import {environment} from '../../environments/environment';
+import {HttpClient} from '@angular/common/http';
 import {Observable, of, switchMap} from 'rxjs';
-import { map } from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {Group} from "../models/group.model";
 import {Color} from "../models/color.model";
+import {Poll} from "../models/poll.model";
 
 @Injectable({
   providedIn: 'root'
@@ -88,12 +89,11 @@ export class PartyService {
 
 
   // Helper to read local .ropf file (simulate this)
-  private readLocalFile(filePath: string): Observable<string[]> {
+  private readLocalFile(filePath: string, polls: boolean = false): Observable<string[]> {
     const fileUrl = `${filePath}`;
     return this.http.get(fileUrl, { responseType: 'text' }).pipe(
       map((fileContent: string) => {
-        let lines = this.extractPartyLinesFromRopf(fileContent);
-        return lines;
+        return polls ? this.extractPollLinesFromRopf(fileContent) : this.extractPartyLinesFromRopf(fileContent);
       })
     );
   }
@@ -119,10 +119,25 @@ export class PartyService {
     return partyLines;
   }
 
+  private extractPollLinesFromRopf(content: string): string[] {
+    const pollLines = [];
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      if (line.trim() === '') {
+        break;
+      } else{
+        pollLines.push(line); // Collect party lines between two empty lines
+      }
+    }
+
+    return pollLines;
+  }
+
   // Parse a single line from the .ropf file and create a Party object
   private parsePartyLine(line: string, country: string, id: number, existingParties: Party[]): Party {
     const stringId = line.split(':')[0].trim();
-    const acronym = this.extractField(line, '•A:') || "Error";
+    const acronym = this.extractField(line, '•R:') || this.extractField(line, '•A:') || "Error";
     const englishName = this.extractField(line, '•EN:') || "Error";
 
     // Look for any "•" marker that is not "•EN" and use it for the localName
@@ -163,12 +178,18 @@ export class PartyService {
 
     // Look for the group using the "•GROUP" marker
     const group = this.extractField(line, '•GROUP:');
-    let groupObject = group ? this.getGroup(group) : null;
+
+    let groupObjects = undefined;
+
+    if (group) {
+      const groups = group.split('/'); // Split the string by slash if there are multiple groups
+      groupObjects = groups.map(g => this.getGroup(g.trim())); // Run getGroup for each group
+    }
 
     // If the party has sub-parties and no group of its own, inherit groups from sub-parties
     let uniqueGroups = new Set<Group>();  // Using Set to avoid duplicates
 
-    if (!groupObject && subParties) {
+    if (!groupObjects && subParties) {
       const uniqueGroupIdentifiers = new Set<string>();  // Store unique group acronyms or IDs
       subParties.forEach(subParty => {
         if (subParty.group) {
@@ -194,7 +215,7 @@ export class PartyService {
       CHES_Progress: null,
       CHES_Liberal: null,
       subParties: subParties,  // Subparties populated based on stringIds
-      group: groupObject ? new Set<Group>([groupObject]) : uniqueGroups,  // Inherit groups from sub-parties if no group is defined for the parent party
+      group: groupObjects ? new Set<Group>(groupObjects) : uniqueGroups,  // Inherit groups from sub-parties if no group is defined for the parent party
       mp: mp,  // Number of MPs
       role: role  // Role of the party, if any
     };
@@ -376,7 +397,7 @@ export class PartyService {
     return chesData;
   }
 
-  getGroup(acronym: string): Group | null {
+  getGroup(acronym: string): Group {
     switch (acronym) {
       case "LEFT":
         return {
@@ -432,12 +453,97 @@ export class PartyService {
           id: 8,
           acronym: acronym,
           name: "Europe of Sovereign Nations",
-          color: new class implements Color { R = 17; G = 48; B = 77;}
+          color: new class implements Color { R = 9; G = 52; B = 92;}
         }
       default:
-        return null;
+        return {
+          id: 9,
+          acronym: "undefined",
+          name: "undefined",
+          color: new class implements Color { R = 100; G = 100; B = 100;}
+        }
     }
   }
 
+  // Method to get polls based on the country code and list of parties
+  getPolls(countryCode: string, parties: Party[]): Observable<Poll[]> {
+    const ropfFilePath = `${environment.localDataPath}${countryCode}.ropf`;
+
+    return this.readLocalFile(ropfFilePath, true).pipe(
+      map((lines: string[]) => this.extractPollsFromLines(lines, parties))
+    );
+  }
+
+  // Helper to parse polling data lines
+  private extractPollsFromLines(lines: string[], parties: Party[]): Poll[] {
+    const polls: Poll[] = [];
+    let currentPoll: Poll | null = null;
+
+    for (const line of lines) {
+      if (line.startsWith('•PF:')) {
+        // Create new poll
+        if (currentPoll) polls.push(currentPoll);
+        currentPoll = this.createPollFromLine(line, parties);
+      } else if (line.startsWith('&') && currentPoll) {
+        // Create a new poll based on the previous one
+        const newPoll = this.createPollFromLine(line, parties, currentPoll);
+        polls.push(newPoll);
+      }
+    }
+
+    // Add the last parsed poll
+    if (currentPoll) polls.push(currentPoll);
+
+    return polls;
+  }
+
+  // Helper to parse a single line into a Poll object
+  private createPollFromLine(line: string, parties: Party[], basePoll?: Poll): Poll {
+    const poll: Poll = {
+      id: 0,
+      pollster: basePoll ? basePoll.pollster : this.extractField(line, '•PF:')!,
+      media: basePoll ? [...basePoll.media] : [],
+      startDate: basePoll ? basePoll.startDate : new Date(this.extractField(line, '•FS:')!),
+      finishDate: basePoll ? basePoll.finishDate : new Date(this.extractField(line, '•FE:')!),
+      type: basePoll ? basePoll.type : this.extractField(line, '•SC:')!,
+      sample: basePoll?.sample ?? this.extractNumberField(line, '•SS:', null),
+      results: this.extractResults(line, parties),
+      others: this.extractNumberField(line, '•O', 0)!
+    };
+
+    // Add additional media if found in current line
+    this.addMultipleFields(line, '•C:', poll.media);
+
+    return poll;
+  }
+
+  private extractNumberField(line: string, marker: string, defaultValue: number | null): number | null {
+    const valueStr = this.extractField(line, marker);
+    return valueStr ? parseFloat(valueStr) : defaultValue;
+  }
+
+  private addMultipleFields(line: string, marker: string, targetArray: string[]): void {
+    const regex = new RegExp(`${marker}\\s(.+?)\\s`, 'g');
+    let match;
+    while ((match = regex.exec(line)) !== null) {
+      targetArray.push(match[1].trim());
+    }
+  }
+
+  private extractResults(line: string, parties: Party[]): { party: Party, value: number }[] {
+    const results: { party: Party, value: number }[] = [];
+    const regex = /\s(\w+):\s(\d+(\.\d+)?)/g;
+    let match;
+
+    while ((match = regex.exec(line)) !== null) {
+      const acronym = match[1].trim();
+      const value = parseFloat(match[2]);
+      const party = parties.find(p => p.stringId === acronym);
+      if (party) {
+        results.push({ party, value });
+      }
+    }
+    return results;
+  }
 
 }

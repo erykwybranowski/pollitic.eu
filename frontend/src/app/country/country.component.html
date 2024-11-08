@@ -2,24 +2,30 @@
   <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
 
   <!-- Support Graph Component -->
-  <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()"></app-support-graph>
+  <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>
+  <app-polling-graph *ngIf="getPartiesForPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()"></app-polling-graph>
 
   <!-- List of Parties with MPs -->
   <div class="party-container">
-    <div *ngFor="let party of getPartiesForList()" class="party-item" [ngStyle]="{'margin-left': (party.subLevel * 50) + 'px'}">
+    <div *ngFor="let party of getPartiesForList()"
+         class="party-item"
+         [ngStyle]="{'margin-left': calculateMarginLeft(party.subLevel)}"
+         [id]="party.acronym">
       <div class="party-details">
         <div class="party-color-bar" [ngStyle]="{'background': getPartyColorGradient(party)}"></div>
         <div class="party-info">
           <h3>{{ party.acronym }}</h3>
           <p *ngIf="party.localName">{{ party.localName.join(', ') }}</p>
-          <div class="party-groups" *ngIf="party.group && party.group.size>0">
+          <div class="party-groups" *ngIf="party.group && party.group.size > 0">
             <p>{{ getPartyGroups(party) }}</p>
           </div>
           <p>Liczba posłów: {{ party.mp || 0 }}</p>
           <p>Rola: {{ getRoles(party) }}</p>
         </div>
-        <div class="party-graph-container">
-          <app-party-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="party-graph"></app-party-graph>
+
+        <!-- Views graph container now adjusted for mobile layout in CSS -->
+        <div class="views-graph-container">
+          <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
         </div>
       </div>
     </div>

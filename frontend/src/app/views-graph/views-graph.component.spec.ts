@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PartyGraphComponent } from './party-graph.component';
+import { ViewsGraphComponent } from './views-graph.component';
 
 describe('PartyGraphComponent', () => {
-  let component: PartyGraphComponent;
-  let fixture: ComponentFixture<PartyGraphComponent>;
+  let component: ViewsGraphComponent;
+  let fixture: ComponentFixture<ViewsGraphComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PartyGraphComponent]
+      imports: [ViewsGraphComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PartyGraphComponent);
+    fixture = TestBed.createComponent(ViewsGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

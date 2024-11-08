@@ -7,6 +7,7 @@ export interface Poll {
   startDate: Date;
   finishDate: Date;
   type: string;
-  sample: number;
+  sample: number | null;
   results: {party: Party, value: number}[];
+  others: number;
 }

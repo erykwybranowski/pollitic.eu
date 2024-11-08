@@ -1,14 +1,15 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Party} from "../models/party.model";
-import {PartyGraphComponent} from "../party-graph/party-graph.component";
-import {NgForOf} from "@angular/common";
+import {ViewsGraphComponent} from "../views-graph/views-graph.component";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-support-graph',
   standalone: true,
   imports: [
-    PartyGraphComponent,
-    NgForOf
+    ViewsGraphComponent,
+    NgForOf,
+    NgIf
   ],
   templateUrl: './support-graph.component.html',
   styleUrl: './support-graph.component.scss'
@@ -18,13 +19,13 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
   @Input() supportData: { acronym: string, support: number }[] = []; // List of support data pairs [acronym - support number]
   @ViewChild('supportGraphContainer') supportGraphContainer!: ElementRef;
   @ViewChild('supportGraph') supportGraph!: ElementRef;
+  @Output() partySelected = new EventEmitter<string>();
 
   maxNumber: number = 0;
   sortedParties: (Party & { support?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
+  chesEuParties: (Party & { support?: number })[] = [];  // Array for parties with CHES_EU
 
   ngOnInit() {
-    console.log("START")
-    console.log(this.parties)
     this.processData();
   }
 
@@ -38,6 +39,9 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
     } else {
       this.supportGraphContainer.nativeElement.style.justifyContent = 'flex-start';
     }
+
+    const numChesEuParties = this.chesEuParties.length;
+    this.supportGraphContainer.nativeElement.style.setProperty('--num-ch-eu-parties', numChesEuParties);
   }
 
   processData() {
@@ -65,6 +69,9 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
 
     this.sortedParties[0].leftIcons = true;
     this.sortedParties[this.sortedParties.length-1].rightIcons = true;
+
+    // Filter parties with CHES_EU
+    this.chesEuParties = this.sortedParties.filter(p => p.CHES_EU !== null);
   }
 
   calculateChesScore(party: Party): number {
@@ -72,7 +79,7 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
     const progress = Array.isArray(party.CHES_Progress) ? (Number(party.CHES_Progress[0]) + Number(party.CHES_Progress[1])) / 2 : Number(party.CHES_Progress);
     const liberal = Array.isArray(party.CHES_Liberal) ? (Number(party.CHES_Liberal[0]) + Number(party.CHES_Liberal[1])) / 2 : Number(party.CHES_Liberal);
     const eu = Array.isArray(party.CHES_EU) ? (Number(party.CHES_EU[0]) + Number(party.CHES_EU[1])) / 2 : Number(party.CHES_EU);
-    return (economy + progress) * (8 + liberal + eu);
+    return (economy + progress + liberal) * (4 + eu);
   }
 
   getPartyHeight(party: Party  & { support?: number }): string {
@@ -114,6 +121,10 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
     if (party.role && party.role.size > 0) {
       return Array.from(party.role).join('/');
     }
-    return 'Opozycja';
+    return '-';
+  }
+
+  onPartyClick(partyAcronym: string): void {
+    this.partySelected.emit(partyAcronym);
   }
 }

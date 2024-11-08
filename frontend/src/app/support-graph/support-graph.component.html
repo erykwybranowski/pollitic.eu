@@ -1,13 +1,14 @@
 <div #supportGraphContainer class="support-graph-container">
   <div #supportGraph class="support-graph">
+    <div class="arrow"></div> <!-- Arrow above party columns -->
     <div class="party-column" *ngFor="let party of sortedParties">
-      <div class="party-graph-wrapper">
-        <app-party-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="party-graph"></app-party-graph>
+      <div class="views-graph-wrapper">
+        <app-views-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="views-graph"></app-views-graph>
       </div>
       <div class="party-groups">{{ getPartyGroupAcronyms(party) }}</div>
       <div class="party-acronym">{{ party.acronym }}</div>
       <div class="party-role">{{ getRoles(party) }}</div>
-      <div class="party-bar" [style.min-height]="getPartyHeight(party)" [style.background]="getPartyColor(party)">
+      <div class="party-bar" [style.min-height]="getPartyHeight(party)" [style.background]="getPartyColor(party)" (click)="onPartyClick(party.acronym)">
         <span class="support-label">
           {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
         </span>

@@ -1,7 +1,8 @@
 .support-graph-container {
+  position: relative; /* Ensure arrow can be positioned relative to this container */
   width: 100%;
   overflow-x: auto;
-  padding-top: 40px;
+  padding-top: 60px;
   height: 550px;
   white-space: nowrap;
   display: flex;
@@ -9,38 +10,73 @@
 
 .support-graph {
   display: inline-flex;
-  justify-content: flex-start; /* Start aligned by default */
+  justify-content: flex-start; /* Keep the columns aligned to the start */
   align-items: flex-end;
-  gap: 30px;
+  gap: 10px;
   padding-left: 50px;
   padding-right: 50px;
   height: 400px;
-  min-width: max-content; /* Prevent shrinking below content size */
+  min-width: max-content;
+  position: relative; /* This will be the relative anchor for the arrow */
+}
+
+.arrow {
+  position: absolute;
+  top: 365px; /* Adjust this value for positioning the arrow above graphs */
+  left: 50px; /* Ensure the arrow always starts at the left of the container */
+  height: 10px;
+  width: calc(var(--num-ch-eu-parties) * 80px - 10px); /* Dynamically size based on party columns */
+  background: linear-gradient(to right, var(--main-blue-color), var(--main-yellow-color));
+  z-index: 2;
+
+  /* Triangle left and right ends */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    border-style: solid;
+    height: 0;
+    width: 0;
+  }
+
+  &::before {
+    left: -10px; /* Adjust position to the left */
+    border-width: 10px 10px 10px 0; /* Creates a triangle pointing right */
+    border-color: transparent var(--main-blue-color) transparent transparent;
+  }
+
+  &::after {
+    right: -10px; /* Adjust position to the right */
+    border-width: 10px 0 10px 10px; /* Creates a triangle pointing left */
+    border-color: transparent transparent transparent var(--main-yellow-color);
+  }
 }
 
 .party-column {
   display: flex;
-  flex-direction: column-reverse; /* Stack items in reverse order */
+  flex-direction: column-reverse;
   align-items: center;
-  width: 100px; /* Fixed width for each column */
-  height: 80%; /* Ensures full height of the container */
+  width: 70px;
+  height: 80%;
 
   .party-bar {
     width: 100%;
     position: relative;
-    min-height: 0; /* Allows for no height if needed */
+    min-height: 0;
     transition: transform 0.3s ease;
+    cursor: pointer;
 
     &:hover {
       transform: scale(1.05);
     }
 
     .support-label {
-      position: absolute; /* Adjust for better placement */
-      top: -30px; /* Position the label above the party bar */
-      left: 50%; /* Center align the label */
-      transform: translateX(-50%); /* Ensure the label is fully centered */
-      font-size: 20px; /* Increase the size of the label */
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
       font-weight: bold;
       text-align: center;
     }
@@ -58,18 +94,20 @@
 
   .party-groups {
     font-size: 12px;
+    padding-bottom: 20px;
   }
 
-  .party-graph-wrapper {
+  .views-graph-wrapper {
     display: flex;
     justify-content: center;
-    width: 100px; /* Adjust width to match the scaled-down size */
-    height: 10px; /* Adjust height to reflect scaled size */
+    width: 100px;
+    height: 10px;
     margin-top: 10px;
+    position: relative;
 
-    .party-graph {
-      transform: scale(0.3); /* Scale down PartyGraphComponent */
-      transform-origin: top; /* Scale from the top */
+    .views-graph {
+      transform: scale(0.2);
+      transform-origin: top;
     }
   }
 }

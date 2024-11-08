@@ -3,17 +3,17 @@ import {Party} from "../models/party.model";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 
 @Component({
-  selector: 'app-party-graph',
+  selector: 'app-views-graph',
   standalone: true,
   imports: [
     NgClass,
     NgForOf,
     NgIf
   ],
-  templateUrl: './party-graph.component.html',
-  styleUrl: './party-graph.component.scss'
+  templateUrl: './views-graph.component.html',
+  styleUrl: './views-graph.component.scss'
 })
-export class PartyGraphComponent implements OnInit {
+export class ViewsGraphComponent implements OnInit {
   @Input() party!: Party;
   @Input() leftIcons!: boolean;
   @Input() rightIcons!: boolean;

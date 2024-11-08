@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PartyService } from '../services/party.service';
 import { Party } from '../models/party.model';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
-import { PartyGraphComponent } from '../party-graph/party-graph.component';
+import { ViewsGraphComponent } from '../views-graph/views-graph.component';
 import { SupportGraphComponent } from '../support-graph/support-graph.component';
+import {PollingGraphComponent} from "../polling-graph/polling-graph.component";
 
 @Component({
   selector: 'app-country',
@@ -12,9 +13,10 @@ import { SupportGraphComponent } from '../support-graph/support-graph.component'
   imports: [
     NgForOf,
     NgIf,
-    PartyGraphComponent,
+    ViewsGraphComponent,
     SupportGraphComponent,
     NgStyle,
+    PollingGraphComponent,
   ],
   templateUrl: './country.component.html',
   styleUrls: ['./country.component.scss'],
@@ -23,13 +25,21 @@ export class CountryComponent implements OnInit {
   countryCode: string = '';
   countryName: string = '';
   parties: Party[] = [];
+  screenWidth: number = window.innerWidth;
 
-  constructor(private route: ActivatedRoute, private partyService: PartyService) {}
+  constructor(private route: ActivatedRoute, private partyService: PartyService) {
+    this.onResize();
+  }
 
   ngOnInit(): void {
     this.countryCode = this.route.snapshot.paramMap.get('countryCode') || '';
     this.loadParties();
     this.loadCountryName();
+  }
+
+  @HostListener('window:resize', [])
+  onResize() {
+    this.screenWidth = window.innerWidth;
   }
 
   loadParties(): void {
@@ -65,6 +75,10 @@ export class CountryComponent implements OnInit {
     });
 
     return partiesWithMPs.filter(party => !subPartyIds.has(party.id));
+  }
+
+  getPartiesForPolls(): Party[] {
+    return this.parties;
   }
 
   getPartiesForList(): (Party & { subLevel: number })[] {
@@ -138,5 +152,24 @@ export class CountryComponent implements OnInit {
       return Array.from(party.role).join('/');
     }
     return 'Opozycja';
+  }
+
+  scrollToParty(partyAcronym: string): void {
+    const targetElement  = document.getElementById(partyAcronym);
+    if (targetElement) {
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - (window.innerHeight / 2 - targetElement.offsetHeight / 2);
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  // Calculate margin-left based on sublevel and screen size
+  calculateMarginLeft(subLevel: number): string {
+    const baseMargin = this.screenWidth <= 768 ? 30 : 50; // Use a smaller margin for mobile
+    return `${subLevel * baseMargin}px`;
   }
 }

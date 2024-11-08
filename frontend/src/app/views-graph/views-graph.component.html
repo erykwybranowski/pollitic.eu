@@ -1,4 +1,4 @@
-<div class="party-graph">
+<div class="views-graph">
   <!-- Left-side icons -->
   <div class="left-icons" *ngIf="leftIcons">
     <div class="icon-left-1"></div>
@@ -20,21 +20,21 @@
          [style.left.px]="connector.startPosition"></div>
   </div>
 
-  <div class="value-graph liberal-graph">
-    <div class="value-square" *ngFor="let square of liberalSquares"
-         [ngClass]="square.class"
-         [style.left.px]="square.position"></div>
-    <div class="connector" *ngFor="let connector of liberalConnectors"
-         [ngClass]="connector.class"
-         [style.width.px]="connector.width"
-         [style.left.px]="connector.startPosition"></div>
-  </div>
-
   <div class="value-graph progress-graph">
     <div class="value-square" *ngFor="let square of progressSquares"
          [ngClass]="square.class"
          [style.left.px]="square.position"></div>
     <div class="connector" *ngFor="let connector of progressConnectors"
+         [ngClass]="connector.class"
+         [style.width.px]="connector.width"
+         [style.left.px]="connector.startPosition"></div>
+  </div>
+
+  <div class="value-graph liberal-graph">
+    <div class="value-square" *ngFor="let square of liberalSquares"
+         [ngClass]="square.class"
+         [style.left.px]="square.position"></div>
+    <div class="connector" *ngFor="let connector of liberalConnectors"
          [ngClass]="connector.class"
          [style.width.px]="connector.width"
          [style.left.px]="connector.startPosition"></div>
