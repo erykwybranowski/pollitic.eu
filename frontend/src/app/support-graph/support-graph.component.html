@@ -1,7 +1,7 @@
 <div #supportGraphContainer class="support-graph-container">
   <div #supportGraph class="support-graph">
     <div class="arrow"></div> <!-- Arrow above party columns -->
-    <div class="party-column" *ngFor="let party of sortedParties">
+    <div class="party-column" *ngFor="let party of sortedParties" (click)="onPartyClick(party.acronym)">
       <div class="views-graph-wrapper">
         <app-views-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="views-graph"></app-views-graph>
       </div>
@@ -10,8 +10,7 @@
       <div *ngIf="isDesktop" class="party-role">{{ getRoles(party) }}</div>
       <div *ngIf="isDesktop" class="party-bar"
            [style.min-height]="getPartyHeight(party)"
-           [style.background]="getPartyColor(party)"
-           (click)="onPartyClick(party.acronym)">
+           [style.background]="getPartyColor(party)">
         <span class="support-label">
           {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
         </span>
@@ -19,18 +18,17 @@
 
       <!-- Mobile layout adjustments -->
       <div class="party-details" *ngIf="!isDesktop">
-        <div class="top-row">
-          <div class="party-acronym" [ngClass]="{'bold': party.role?.has('Rząd')}">
-            {{ party.acronym }}
+        <div class="party-acronym" [ngClass]="{'bold': party.role?.has('Rząd')}">
+          {{ party.acronym }}
+        </div>
+        <div class="bottom-row">
+          <div class="party-bar"
+               [style.background]="getPartyColor(party)"
+               [style.width]="getPartyHeight(party)">
           </div>
-          <span class="support-label">
+          <span class="support-label" [style.padding-left]="getPartyHeight(party)">
             {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
           </span>
-        </div>
-        <div class="party-bar"
-             [style.background]="getPartyColor(party)"
-             [style.width]="getPartyHeight(party)"
-             (click)="onPartyClick(party.acronym)">
         </div>
       </div>
     </div>

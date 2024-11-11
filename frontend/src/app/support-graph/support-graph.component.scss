@@ -13,7 +13,7 @@
     overflow-x: hidden;
     overflow-y: hidden;
     height: auto;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
   }
 }
 
@@ -74,7 +74,7 @@
     top: 27px;
     left: 140px;
     width: 10px;
-    height: calc(var(--num-ch-eu-parties) * 89px - 7px);
+    height: calc(var(--num-ch-eu-parties) * 85px);
     background: linear-gradient(to bottom, var(--main-blue-color), var(--main-yellow-color));
 
     &::before {
@@ -154,7 +154,7 @@
   @media (max-width: 768px) {
     flex-direction: row;
     align-items: flex-start;
-    width: 90%;
+    width: 100%;
     margin-bottom: -10px;
 
     .views-graph-wrapper {
@@ -164,32 +164,34 @@
     .party-details {
       display: flex;
       flex-direction: column;
-      width: 100%;
+      width: 50%;
       margin-left: 30px;
       margin-top: 3px;
 
-      .top-row {
-        display: flex;
-        align-items: center;
+      .party-acronym {
+        font-weight: normal;
 
-        .party-acronym {
-          font-weight: normal;
-
-          &.bold {
-            font-weight: bold;
-          }
-        }
-
-        .support-label {
+        &.bold {
           font-weight: bold;
-          margin-left: 10px;
         }
       }
 
-      .party-bar {
-        height: 50px;
-        width: 100%;
-        min-width: 0;
+      .bottom-row {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        .support-label {
+          position: absolute;
+          font-weight: bold;
+          margin-left: 5px;
+        }
+
+        .party-bar {
+          height: 50px;
+          width: 100%;
+          min-width: 0;
+        }
       }
     }
   }
