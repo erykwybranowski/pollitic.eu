@@ -11,8 +11,9 @@
     flex-direction: column;
     padding-top: 0;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
     height: auto;
+    padding-bottom: 20px;
   }
 }
 
@@ -33,7 +34,7 @@
     height: auto;
     padding: 20px;
     width: 100%;
-    gap: 50px;
+    gap: 20px;
   }
 }
 
@@ -73,19 +74,19 @@
     top: 27px;
     left: 140px;
     width: 10px;
-    height: calc(var(--num-ch-eu-parties) * 93px - 20px);
+    height: calc(var(--num-ch-eu-parties) * 89px - 7px);
     background: linear-gradient(to bottom, var(--main-blue-color), var(--main-yellow-color));
 
     &::before {
       top: -9px;
-      left: -5px;
+      left: -4.7px;
       border-width: 0 10px 10px 10px;
       border-color: transparent transparent var(--main-blue-color) transparent;
     }
 
     &::after {
       top: calc(100% - 1px);
-      left: -5px;
+      left: -4.7px;
       border-width: 10px 10px 0 10px;
       border-color: var(--main-yellow-color) transparent transparent transparent;
     }
@@ -152,40 +153,44 @@
 
   @media (max-width: 768px) {
     flex-direction: row;
-    align-items: center;
-    width: 80%;
-    margin-bottom: 20px;
+    align-items: flex-start;
+    width: 90%;
+    margin-bottom: -10px;
 
     .views-graph-wrapper {
       margin-right: 10px;
-      margin-top: 0;
     }
 
-    .party-bar {
-      height: 30px;
-    }
-
-    .support-label {
-      position: absolute;
-      left: 100%;
-      top: 50%;
-      transform: translateY(-50%);
-      margin-left: 10px;
-    }
-
-    .party-acronym {
-      margin-right: 10px;
+    .party-details {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
       margin-left: 30px;
-      font-weight: normal;
+      margin-top: 3px;
 
-      &.bold {
-        font-weight: bold;
+      .top-row {
+        display: flex;
+        align-items: center;
+
+        .party-acronym {
+          font-weight: normal;
+
+          &.bold {
+            font-weight: bold;
+          }
+        }
+
+        .support-label {
+          font-weight: bold;
+          margin-left: 10px;
+        }
       }
-    }
 
-    .party-role,
-    .party-groups {
-      display: none;
+      .party-bar {
+        height: 50px;
+        width: 100%;
+        min-width: 0;
+      }
     }
   }
 }
