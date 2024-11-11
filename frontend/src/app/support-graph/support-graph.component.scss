@@ -1,35 +1,51 @@
 .support-graph-container {
-  position: relative; /* Ensure arrow can be positioned relative to this container */
+  position: relative;
   width: 100%;
   overflow-x: auto;
   padding-top: 60px;
   height: 550px;
   white-space: nowrap;
   display: flex;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding-top: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+  }
 }
 
 .support-graph {
   display: inline-flex;
-  justify-content: flex-start; /* Keep the columns aligned to the start */
+  justify-content: flex-start;
   align-items: flex-end;
   gap: 10px;
   padding-left: 50px;
   padding-right: 50px;
   height: 400px;
   min-width: max-content;
-  position: relative; /* This will be the relative anchor for the arrow */
+  position: relative;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    padding: 20px;
+    width: 100%;
+    gap: 50px;
+  }
 }
 
 .arrow {
   position: absolute;
-  top: 365px; /* Adjust this value for positioning the arrow above graphs */
-  left: 50px; /* Ensure the arrow always starts at the left of the container */
+  top: 365px;
+  left: 50px;
   height: 10px;
-  width: calc(var(--num-ch-eu-parties) * 80px - 10px); /* Dynamically size based on party columns */
+  width: calc(var(--num-ch-eu-parties) * 80px - 10px);
   background: linear-gradient(to right, var(--main-blue-color), var(--main-yellow-color));
   z-index: 2;
 
-  /* Triangle left and right ends */
   &::before,
   &::after {
     content: '';
@@ -41,15 +57,38 @@
   }
 
   &::before {
-    left: -10px; /* Adjust position to the left */
-    border-width: 10px 10px 10px 0; /* Creates a triangle pointing right */
+    left: -10px;
+    border-width: 10px 10px 10px 0;
     border-color: transparent var(--main-blue-color) transparent transparent;
   }
 
   &::after {
-    right: -10px; /* Adjust position to the right */
-    border-width: 10px 0 10px 10px; /* Creates a triangle pointing left */
+    right: -10px;
+    border-width: 10px 0 10px 10px;
     border-color: transparent transparent transparent var(--main-yellow-color);
+  }
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 27px;
+    left: 140px;
+    width: 10px;
+    height: calc(var(--num-ch-eu-parties) * 93px - 20px);
+    background: linear-gradient(to bottom, var(--main-blue-color), var(--main-yellow-color));
+
+    &::before {
+      top: -9px;
+      left: -5px;
+      border-width: 0 10px 10px 10px;
+      border-color: transparent transparent var(--main-blue-color) transparent;
+    }
+
+    &::after {
+      top: calc(100% - 1px);
+      left: -5px;
+      border-width: 10px 10px 0 10px;
+      border-color: var(--main-yellow-color) transparent transparent transparent;
+    }
   }
 }
 
@@ -108,6 +147,45 @@
     .views-graph {
       transform: scale(0.2);
       transform-origin: top;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    width: 80%;
+    margin-bottom: 20px;
+
+    .views-graph-wrapper {
+      margin-right: 10px;
+      margin-top: 0;
+    }
+
+    .party-bar {
+      height: 30px;
+    }
+
+    .support-label {
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 10px;
+    }
+
+    .party-acronym {
+      margin-right: 10px;
+      margin-left: 30px;
+      font-weight: normal;
+
+      &.bold {
+        font-weight: bold;
+      }
+    }
+
+    .party-role,
+    .party-groups {
+      display: none;
     }
   }
 }

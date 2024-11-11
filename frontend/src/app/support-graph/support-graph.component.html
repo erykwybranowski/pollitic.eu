@@ -6,9 +6,13 @@
         <app-views-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="views-graph"></app-views-graph>
       </div>
       <div class="party-groups">{{ getPartyGroupAcronyms(party) }}</div>
-      <div class="party-acronym">{{ party.acronym }}</div>
+      <div class="party-acronym" [ngClass]="{'bold': party.role !== null}">{{ party.acronym }}</div>
       <div class="party-role">{{ getRoles(party) }}</div>
-      <div class="party-bar" [style.min-height]="getPartyHeight(party)" [style.background]="getPartyColor(party)" (click)="onPartyClick(party.acronym)">
+      <div class="party-bar"
+           [style.min-height]="isDesktop ? getPartyHeight(party) : null"
+           [style.width]="isDesktop ? null : getPartyHeight(party)"
+           [style.background]="getPartyColor(party)"
+           (click)="onPartyClick(party.acronym)">
         <span class="support-label">
           {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
         </span>

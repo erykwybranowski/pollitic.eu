@@ -1,7 +1,17 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {Party} from "../models/party.model";
 import {ViewsGraphComponent} from "../views-graph/views-graph.component";
-import {NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-support-graph',
@@ -9,7 +19,8 @@ import {NgForOf, NgIf} from "@angular/common";
   imports: [
     ViewsGraphComponent,
     NgForOf,
-    NgIf
+    NgIf,
+    NgClass
   ],
   templateUrl: './support-graph.component.html',
   styleUrl: './support-graph.component.scss'
@@ -25,7 +36,10 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
   sortedParties: (Party & { support?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
   chesEuParties: (Party & { support?: number })[] = [];  // Array for parties with CHES_EU
 
+  isDesktop: boolean = true;
+
   ngOnInit() {
+    this.updateIsDesktop();
     this.processData();
   }
 
@@ -44,6 +58,15 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
     this.supportGraphContainer.nativeElement.style.setProperty('--num-ch-eu-parties', numChesEuParties);
   }
 
+  @HostListener('window:resize', [])
+  onResize() {
+    this.updateIsDesktop();
+  }
+
+  updateIsDesktop() {
+    this.isDesktop = window.innerWidth >= 768; // Define 768px as the desktop threshold
+  }
+
   processData() {
     if (this.supportData && this.supportData.length > 0) {
       // Use support numbers for visualization
@@ -55,7 +78,7 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
     } else {
       // Use MP numbers for visualization
       this.sortedParties = this.parties.map(party => {
-        return { ...party, leftIcons : false, rightIcons : false};
+        return { ...party, leftIcons : !this.isDesktop, rightIcons : !this.isDesktop};
       });
       this.maxNumber = Math.max(...this.sortedParties.map(p => p.mp!));
     }
