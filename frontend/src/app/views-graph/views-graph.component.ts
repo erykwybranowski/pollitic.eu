@@ -50,12 +50,12 @@ export class ViewsGraphComponent implements OnInit {
 
     if (Array.isArray(chesValue)) {
       // If CHES value is a range
-      this.addSquare(squaresArray, chesValue[0], chesValue[0] < 0 ? 'blue' : (chesValue[0] == 0 ? "center" : "yellow"));  // First value
-      this.addSquare(squaresArray, chesValue[1], chesValue[1] < 0 ? 'blue' : (chesValue[1] == 0 ? "center" : "yellow"));  // Second value
+      this.addSquare(squaresArray, chesValue[0], chesValue[0] < 0 ? 'yellow' : (chesValue[0] == 0 ? "center" : "blue"));  // First value
+      this.addSquare(squaresArray, chesValue[1], chesValue[1] < 0 ? 'yellow' : (chesValue[1] == 0 ? "center" : "blue"));  // Second value
       this.addRangeConnector(connectorsArray, chesValue[0], chesValue[1]);  // Updated range connector logic
     } else if (chesValue && chesValue != 0) {
       // If CHES value is a single value
-      this.addSquare(squaresArray, chesValue, chesValue > 0 ? 'yellow' : 'blue');
+      this.addSquare(squaresArray, chesValue, chesValue > 0 ? 'blue' : 'yellow');
     } else if (chesValue == 0) {
       // If CHES value is 0
       this.addSquare(squaresArray, 0, 'center');
@@ -72,9 +72,9 @@ export class ViewsGraphComponent implements OnInit {
     const endPosition = Math.max(value1, value2) * 50 + 150 + 25;
     let color: string;
 
-    if (endPosition <= 175) color = "blue";
+    if (endPosition <= 175) color = "yellow";
     else if (startPosition <= 125) color = "gradient";
-    else color = "yellow";
+    else color = "blue";
 
     connectorsArray.push({
       class: color,

@@ -9,7 +9,7 @@ $square-width: 50px;
   height: 400px;
   // Background layers: grid on top, colors beneath
   background:
-    linear-gradient(to right, rgba(184, 246, 255, 0.25) 0%, rgba(184, 246, 255, 0.25) 150px, transparent 150px, transparent 200px, rgba(255, 249, 176, 0.25) 200px, rgba(255, 249, 176, 0.25) 100%), /* Light blue left, light yellow right */
+    linear-gradient(to right, rgba(255, 249, 176, 0.25) 0%, rgba(255, 249, 176, 0.25) 150px, transparent 150px, transparent 200px, rgba(184, 246, 255, 0.25) 200px, rgba(184, 246, 255, 0.25) 100%), /* Light blue left, light yellow right */
     linear-gradient(to right, grey 2px, transparent 1px), /* Vertical grid lines */
     linear-gradient(to bottom, grey 2px, transparent 1px); /* Horizontal grid lines */
 
@@ -132,7 +132,7 @@ $square-width: 50px;
       }
 
       &.gradient {
-        background: linear-gradient(to right, var(--accent-blue-color), var(--accent-yellow-color));
+        background: linear-gradient(to right, var(--accent-yellow-color), var(--accent-blue-color));
       }
     }
 
@@ -154,7 +154,7 @@ $square-width: 50px;
       }
 
       &.center {
-        background: linear-gradient(to right, var(--main-blue-color), var(--main-yellow-color));
+        background: linear-gradient(to right, var(--main-yellow-color), var(--main-blue-color));
       }
     }
   }

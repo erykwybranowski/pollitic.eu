@@ -3,7 +3,7 @@
 
   <!-- Support Graph Component -->
   <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>
-<!--  <app-polling-graph *ngIf="getPartiesForPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()"></app-polling-graph>-->
+  <app-polling-graph *ngIf="getPartiesForPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()"></app-polling-graph>
 
   <!-- List of Parties with MPs -->
   <div class="party-container">
