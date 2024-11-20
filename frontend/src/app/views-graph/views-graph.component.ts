@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Party} from "../models/party.model";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 
@@ -13,7 +13,7 @@ import {NgClass, NgForOf, NgIf} from "@angular/common";
   templateUrl: './views-graph.component.html',
   styleUrl: './views-graph.component.scss'
 })
-export class ViewsGraphComponent implements OnInit {
+export class ViewsGraphComponent implements OnChanges {
   @Input() party!: Party;
   @Input() leftIcons!: boolean;
   @Input() rightIcons!: boolean;
@@ -30,11 +30,23 @@ export class ViewsGraphComponent implements OnInit {
   euSquares: any[] = [];
   euConnectors: any[] = [];
 
-  ngOnInit(): void {
-    this.generateGraph();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['party']) {
+      this.generateGraph();
+    }
   }
 
   generateGraph(): void {
+    // Clear existing data
+    this.economySquares = [];
+    this.economyConnectors = [];
+    this.liberalSquares = [];
+    this.liberalConnectors = [];
+    this.progressSquares = [];
+    this.progressConnectors = [];
+    this.euSquares = [];
+    this.euConnectors = [];
+
     this.createValueGraph('CHES_Economy', this.economySquares, this.economyConnectors);
     this.createValueGraph('CHES_Liberal', this.liberalSquares, this.liberalConnectors);
     this.createValueGraph('CHES_Progress', this.progressSquares, this.progressConnectors);

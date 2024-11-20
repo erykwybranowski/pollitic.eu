@@ -1,9 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {PartyService} from "../services/party.service";
-import {Poll} from "../models/poll.model";
-import {Party} from "../models/party.model";
-import {Chart, registerables} from 'chart.js';
+import { Component, Input, OnInit } from '@angular/core';
+import { PartyService } from '../services/party.service';
+import { Poll } from '../models/poll.model';
+import { Party } from '../models/party.model';
+import { Chart, registerables } from 'chart.js';
 import { NgZone } from '@angular/core';
+import {Group} from "../models/group.model";
 
 @Component({
   selector: 'app-polling-graph',
@@ -16,6 +17,8 @@ export class PollingGraphComponent implements OnInit {
   @Input() parties: Party[] = [];
   polls: Poll[] = [];
   chart: Chart | null = null;
+  colorsUsed: Record<string, number> = {};
+  partyColors: Record<string, string> = {};
 
   constructor(private partyService: PartyService, private ngZone: NgZone) {
     Chart.register(...registerables);
@@ -26,7 +29,7 @@ export class PollingGraphComponent implements OnInit {
   }
 
   private loadPolls(): void {
-    this.partyService.getPolls(this.countryCode, this.parties).subscribe(polls => {
+    this.partyService.getPolls(this.countryCode, this.parties).subscribe((polls) => {
       this.polls = polls;
       this.createGraph();
     });
@@ -37,13 +40,37 @@ export class PollingGraphComponent implements OnInit {
       this.chart.destroy();
     }
 
+    // Dynamically adjust canvas height
+    const canvasElement = document.getElementById('pollingGraph') as HTMLCanvasElement;
+    if (canvasElement) {
+      const screenWidth = window.innerWidth;
+      canvasElement.height = Math.max(500, Math.min(screenWidth / 2, 500)); // Adjust these values as needed
+    }
+
     const partySupportOverTime = this.processPolls();
-    const datasets = Object.keys(partySupportOverTime).map((party, index) => ({
-      label: party,
-      data: partySupportOverTime[party].map(entry => entry.value),
-      borderColor: this.getPartyColor(index),
-      fill: false,
-    }));
+    const sortedParties = Object.keys(partySupportOverTime)
+      .filter((party) => partySupportOverTime[party].some((entry) => entry.value > 0)) // Exclude parties with no non-zero values
+      .sort((a, b) => {
+        const groupCountA = this.getPartyByAcronym(a)?.group?.size || 0;
+        const groupCountB = this.getPartyByAcronym(b)?.group?.size || 0;
+        return groupCountA - groupCountB; // Sort descending by group size
+      });
+
+    this.getPartyColor(sortedParties);
+
+    const datasets = sortedParties
+      .sort((a, b) => {
+        const averageA = this.average(partySupportOverTime[a].map((entry) => entry.value).filter(entry => entry > 0));
+        const averageB = this.average(partySupportOverTime[b].map((entry) => entry.value).filter(entry => entry > 0));
+        return averageA - averageB;
+      })
+      .map((party) => ({
+        label: party,
+        data: partySupportOverTime[party].map((entry) => (entry.value > 0 ? entry.value : null)),
+        borderColor: this.partyColors[party],
+        spanGaps: true,
+        fill: false,
+      }));
 
     const labels = this.generateMonthLabels();
 
@@ -59,14 +86,15 @@ export class PollingGraphComponent implements OnInit {
           plugins: {
             legend: {
               position: 'bottom',
+              reverse: true,
             },
           },
           scales: {
             x: {
-              title: { display: true, text: 'Months' },
+              title: { display: true, text: 'Miesiąc' },
             },
             y: {
-              title: { display: true, text: 'Support (%)' },
+              title: { display: true, text: 'Poparcie (%)' },
               beginAtZero: true,
             },
           },
@@ -82,16 +110,24 @@ export class PollingGraphComponent implements OnInit {
 
     const partySupport: Record<string, { [month: string]: number[] }> = {};
 
-    this.polls.forEach(poll => {
+    this.polls.forEach((poll) => {
       const pollMonth = poll.finishDate.toISOString().slice(0, 7); // Format: YYYY-MM
-      poll.results.forEach(result => {
-        if (!partySupport[result.party.acronym]) {
-          partySupport[result.party.acronym] = {};
+      poll.results.forEach((result) => {
+        // Generate the key for the partySupport record
+        const partyKey = result.party.length === 1
+          ? result.party[0].acronym
+          : result.party.map((p) => p.acronym).join('/');
+
+        // Initialize nested structures if they don't exist
+        if (!partySupport[partyKey]) {
+          partySupport[partyKey] = {};
         }
-        if (!partySupport[result.party.acronym][pollMonth]) {
-          partySupport[result.party.acronym][pollMonth] = [];
+        if (!partySupport[partyKey][pollMonth]) {
+          partySupport[partyKey][pollMonth] = [];
         }
-        partySupport[result.party.acronym][pollMonth].push(result.value);
+
+        // Add the value to the corresponding month
+        partySupport[partyKey][pollMonth].push(result.value);
       });
     });
 
@@ -122,11 +158,53 @@ export class PollingGraphComponent implements OnInit {
 
   private average(values: number[]): number {
     if (values.length === 0) return 0;
-    return values.reduce((sum, value) => sum + value, 0) / values.length;
+    const rawAverage = values.reduce((sum, value) => sum + value, 0) / values.length;
+    return Math.round(rawAverage * 10) / 10;
   }
 
-  private getPartyColor(index: number): string {
-    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-    return colors[index % colors.length];
+
+  private getPartyColor(parties: string[]): void {
+    for (let party of parties) {
+      let groups = new Set<Group>();
+      if (party.includes("/")) {
+        party.split("/").forEach((acronym) => {
+          let groupSet = this.parties.find((party) => party.acronym === acronym)?.group;
+          if (groupSet) {
+            groupSet.forEach(group => {
+              if (!groups.has(group)) groups.add(group);
+            })
+          }
+        });
+      } else {
+        let groupSet = this.parties.find((p) => p.acronym === party)?.group;
+        if (groupSet) {
+          groupSet.forEach(group => {
+            if (!groups.has(group)) groups.add(group);
+          })
+        }
+      }
+
+      if (groups && groups.size > 0) {
+        let selectedGroup = groups.values().next().value;
+        if (groups.size > 1) {
+          selectedGroup = Array.from(groups).reduce((leastUsedGroup : Group, currentGroup : Group) => {
+            const currentUsage = this.colorsUsed[currentGroup.acronym] || 0;
+            const leastUsage = leastUsedGroup ? this.colorsUsed[leastUsedGroup.acronym] || 0 : Infinity;
+
+            return currentUsage < leastUsage ? currentGroup : leastUsedGroup;
+          });
+        }
+        const { R, G, B } = selectedGroup.color;
+        this.colorsUsed[selectedGroup.acronym] = this.colorsUsed[selectedGroup.acronym] ? this.colorsUsed[selectedGroup.acronym] + 1 : 1;
+        this.partyColors[party] = `rgb(${R}, ${G}, ${B})`;
+      } else {
+        this.partyColors[party] = 'gray'; // Default color for parties with no group
+      }
+    }
   }
+
+  private getPartyByAcronym(acronym: string): Party | undefined {
+    return this.parties.find((party) => party.acronym === acronym);
+  }
+
 }

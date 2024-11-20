@@ -117,12 +117,8 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
 
   getPartyColor(party: Party): string {
     if (party.group && party.group.size > 0) {
-      const colors = Array.from(party.group).map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
-
-      // If there is only one color, return that color as a solid background
-      if (colors.length === 1) {
-        return colors[0];
-      }
+      const colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
+        .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
 
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(to right, ${colors.join(', ')})`;

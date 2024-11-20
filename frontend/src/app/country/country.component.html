@@ -1,8 +1,35 @@
 <div class="party-list">
   <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
 
-  <!-- Support Graph Component -->
   <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>
+
+  <div *ngIf="government != null" class="party-container">
+    <div class="party-item">
+      <div class="party-details">
+        <div class="party-color-bar" [ngStyle]="{'background': getPartyColorGradient(government)}"></div>
+        <div class="party-info">
+          <h3>Rząd</h3>
+          <p>{{ government.acronym }}</p>
+          <p *ngIf="includeSupportParties">{{ government.stringId }}</p>
+          <div class="party-groups" *ngIf="government.group && government.group.size > 0">
+            <p>{{ getPartyGroups(government) }}</p>
+          </div>
+        </div>
+        <div class="views-graph-container">
+          <app-views-graph [party]="government" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add the toggle switch -->
+  <div class="toggle-container" *ngIf="hasSupport()">
+    <label>
+      <input type="checkbox" [(ngModel)]="includeSupportParties" (change)="determineGovernment()" />
+      Uwzględnij partie wspierające rząd
+    </label>
+  </div>
+
   <app-polling-graph *ngIf="getPartiesForPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()"></app-polling-graph>
 
   <!-- List of Parties with MPs -->

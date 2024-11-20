@@ -299,64 +299,78 @@ export class PartyService {
         party.CHES_Liberal = matchingCHESData.CHES_Liberal;
       } else if (party.subParties && party.subParties.length > 0) {
         // If no CHES data found, but there are sub-parties, aggregate their CHES data
-
-        // Initialize arrays to store ranges of CHES values
-        let chesEU: number[] = [];
-        let chesEconomy: number[] = [];
-        let chesProgress: number[] = [];
-        let chesLiberal: number[] = [];
-
-        // Helper function to handle both single values and ranges
-        const addValueToRange = (range: number[], value: number | number[]) => {
-          if (Array.isArray(value)) {
-            range.push(...value); // Add both min and max if it's a range
-          } else {
-            range.push(value); // Add the single value
-          }
-        };
-
-        // Iterate over sub-parties to collect their CHES data
-        party.subParties.forEach(subParty => {
-          if (subParty.CHES_EU !== null && subParty.CHES_EU !== undefined) {
-            addValueToRange(chesEU, subParty.CHES_EU);
-          }
-          if (subParty.CHES_Economy !== null && subParty.CHES_Economy !== undefined) {
-            addValueToRange(chesEconomy, subParty.CHES_Economy);
-          }
-          if (subParty.CHES_Progress !== null && subParty.CHES_Progress !== undefined) {
-            addValueToRange(chesProgress, subParty.CHES_Progress);
-          }
-          if (subParty.CHES_Liberal !== null && subParty.CHES_Liberal !== undefined) {
-            addValueToRange(chesLiberal, subParty.CHES_Liberal);
-          }
-        });
-
-        // If there are values in the arrays, set them as ranges for the parent party
-        if (chesEU.length > 0) {
-          const minEU = Math.min(...chesEU);
-          const maxEU = Math.max(...chesEU);
-          party.CHES_EU = minEU === maxEU ? minEU : [minEU, maxEU]; // Single value if equal
-        }
-
-        if (chesEconomy.length > 0) {
-          const minEconomy = Math.min(...chesEconomy);
-          const maxEconomy = Math.max(...chesEconomy);
-          party.CHES_Economy = minEconomy === maxEconomy ? minEconomy : [minEconomy, maxEconomy];
-        }
-
-        if (chesProgress.length > 0) {
-          const minProgress = Math.min(...chesProgress);
-          const maxProgress = Math.max(...chesProgress);
-          party.CHES_Progress = minProgress === maxProgress ? minProgress : [minProgress, maxProgress];
-        }
-
-        if (chesLiberal.length > 0) {
-          const minLiberal = Math.min(...chesLiberal);
-          const maxLiberal = Math.max(...chesLiberal);
-          party.CHES_Liberal = minLiberal === maxLiberal ? minLiberal : [minLiberal, maxLiberal];
-        }
+        let subPartiesData = this.getSubPartiesCHESData(party.subParties);
+        party.CHES_EU = subPartiesData[0];
+        party.CHES_Economy = subPartiesData[1];
+        party.CHES_Progress = subPartiesData[2];
+        party.CHES_Liberal = subPartiesData[3];
       }
     });
+  }
+
+  public getSubPartiesCHESData(parties: Party[]): (number | number[] | null)[] {
+    // Initialize arrays to store ranges of CHES values
+    let chesEU: number[] = [];
+    let chesEconomy: number[] = [];
+    let chesProgress: number[] = [];
+    let chesLiberal: number[] = [];
+
+    // Helper function to handle both single values and ranges
+    const addValueToRange = (range: number[], value: number | number[]) => {
+      if (Array.isArray(value)) {
+        range.push(...value); // Add both min and max if it's a range
+      } else {
+        range.push(value); // Add the single value
+      }
+    };
+
+    // Iterate over sub-parties to collect their CHES data
+    parties.forEach(subParty => {
+      if (subParty.CHES_EU !== null && subParty.CHES_EU !== undefined) {
+        addValueToRange(chesEU, subParty.CHES_EU);
+      }
+      if (subParty.CHES_Economy !== null && subParty.CHES_Economy !== undefined) {
+        addValueToRange(chesEconomy, subParty.CHES_Economy);
+      }
+      if (subParty.CHES_Progress !== null && subParty.CHES_Progress !== undefined) {
+        addValueToRange(chesProgress, subParty.CHES_Progress);
+      }
+      if (subParty.CHES_Liberal !== null && subParty.CHES_Liberal !== undefined) {
+        addValueToRange(chesLiberal, subParty.CHES_Liberal);
+      }
+    });
+
+    let parentCHES_EU: number | number[] | null = null;
+    let parentCHES_Economy: number | number[] | null = null;
+    let parentCHES_Progress: number | number[] | null = null;
+    let parentCHES_Liberal: number | number[] | null = null;
+
+    // If there are values in the arrays, set them as ranges for the parent party
+    if (chesEU.length > 0) {
+      const minEU = Math.min(...chesEU);
+      const maxEU = Math.max(...chesEU);
+      parentCHES_EU = minEU === maxEU ? minEU : [minEU, maxEU]; // Single value if equal
+    }
+
+    if (chesEconomy.length > 0) {
+      const minEconomy = Math.min(...chesEconomy);
+      const maxEconomy = Math.max(...chesEconomy);
+      parentCHES_Economy = minEconomy === maxEconomy ? minEconomy : [minEconomy, maxEconomy];
+    }
+
+    if (chesProgress.length > 0) {
+      const minProgress = Math.min(...chesProgress);
+      const maxProgress = Math.max(...chesProgress);
+      parentCHES_Progress = minProgress === maxProgress ? minProgress : [minProgress, maxProgress];
+    }
+
+    if (chesLiberal.length > 0) {
+      const minLiberal = Math.min(...chesLiberal);
+      const maxLiberal = Math.max(...chesLiberal);
+      parentCHES_Liberal = minLiberal === maxLiberal ? minLiberal : [minLiberal, maxLiberal];
+    }
+
+    return [parentCHES_EU, parentCHES_Economy, parentCHES_Progress, parentCHES_Liberal];
   }
 
   private readCHESData(): Observable<any[]> {
@@ -401,56 +415,56 @@ export class PartyService {
     switch (acronym) {
       case "LEFT":
         return {
-          id: 1,
+          id: 0,
           acronym: acronym,
           name: "Progressive Alliance of Socialists and Democrats",
           color: new class implements Color { R = 138; G = 21; B = 28;}
         }
       case "S&D":
         return {
-          id: 2,
+          id: 1,
           acronym: acronym,
           name: "Progressive Alliance of Socialists and Democrats",
           color: new class implements Color { R = 219; G = 58; B = 46;}
         }
       case "GREENS":
         return {
-          id: 3,
+          id: 2,
           acronym: acronym,
           name: "Greens/European Free Alliance",
           color: new class implements Color { R = 27; G = 209; B = 36;}
         }
       case "RE":
         return {
-          id: 4,
+          id: 3,
           acronym: acronym,
           name: "Renew Europe",
           color: new class implements Color { R = 238; G = 230; B = 1;}
         }
       case "EPP":
         return {
-          id: 5,
+          id: 4,
           acronym: acronym,
           name: "European People's Party",
           color: new class implements Color { R = 52; G = 143; B = 235;}
         }
       case "ECR":
         return {
-          id: 6,
+          id: 5,
           acronym: acronym,
           name: "European Conservatives and Reformists",
           color: new class implements Color { R = 39; G = 44; B = 186;}
         }
       case "PfE":
         return {
-          id: 7,
+          id: 6,
           acronym: acronym,
           name: "Patriots for Europe",
-          color: new class implements Color { R = 49; G = 19; B = 97;}
+          color: new class implements Color { R = 76; G = 48; B = 122;}
         }
       case "ESN":
         return {
-          id: 8,
+          id: 7,
           acronym: acronym,
           name: "Europe of Sovereign Nations",
           color: new class implements Color { R = 9; G = 52; B = 92;}
@@ -530,20 +544,40 @@ export class PartyService {
     }
   }
 
-  private extractResults(line: string, parties: Party[]): { party: Party, value: number }[] {
-    const results: { party: Party, value: number }[] = [];
-    const regex = /\s(\w+):\s(\d+(\.\d+)?)/g;
-    let match;
+  private extractResults(line: string, parties: Party[]): { party: Party[], value: number }[] {
+    const results: { party: Party[], value: number }[] = [];
+    const regex = /\s([\p{L}\w\-+]+):\s(\d+(\.\d+)?)/ug;
 
+    let match;
+    let totalSupport = 0;
+    const tempResults: { party: Party[], value: number }[] = [];
+
+    // First pass: collect results and calculate total support
     while ((match = regex.exec(line)) !== null) {
       const acronym = match[1].trim();
       const value = parseFloat(match[2]);
+      totalSupport += value; // Sum up support values
+
       const party = parties.find(p => p.stringId === acronym);
       if (party) {
-        results.push({ party, value });
+        tempResults.push({ party: [party], value });
+      } else if (acronym.includes("+")) {
+        const subAcronyms = acronym.split("+").map(sub => sub.trim());
+        const allParties = subAcronyms
+          .map(sub => parties.find(p => p.stringId === sub))
+          .filter((party): party is Party => !!party); // Exclude null/undefined
+        if (allParties.length > 0) {
+          tempResults.push({ party: allParties, value });
+        }
       }
     }
+
+    // Second pass: normalize values based on total support
+    tempResults.forEach(result => {
+      const normalizedValue = (result.value / totalSupport) * 100; // Calculate percentage
+      results.push({ party: result.party, value: normalizedValue });
+    });
+
     return results;
   }
-
 }

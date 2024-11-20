@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostListener, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PartyService } from '../services/party.service';
 import { Party } from '../models/party.model';
@@ -6,6 +6,8 @@ import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import { ViewsGraphComponent } from '../views-graph/views-graph.component';
 import { SupportGraphComponent } from '../support-graph/support-graph.component';
 import {PollingGraphComponent} from "../polling-graph/polling-graph.component";
+import {Group} from "../models/group.model";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-country',
@@ -17,6 +19,7 @@ import {PollingGraphComponent} from "../polling-graph/polling-graph.component";
     SupportGraphComponent,
     NgStyle,
     PollingGraphComponent,
+    FormsModule,
   ],
   templateUrl: './country.component.html',
   styleUrls: ['./country.component.scss'],
@@ -26,8 +29,10 @@ export class CountryComponent implements OnInit {
   countryName: string = '';
   parties: Party[] = [];
   screenWidth: number = window.innerWidth;
+  government: Party | null = null;
+  includeSupportParties = false;
 
-  constructor(private route: ActivatedRoute, private partyService: PartyService) {
+  constructor(private route: ActivatedRoute, private partyService: PartyService, private cdr: ChangeDetectorRef) {
     this.onResize();
   }
 
@@ -46,6 +51,8 @@ export class CountryComponent implements OnInit {
     this.partyService.getParties(this.countryCode).subscribe({
       next: (parties: Party[]) => {
         this.parties = parties;
+
+        this.determineGovernment();
       },
       error: (error) => {
         console.error('Error loading parties', error);
@@ -54,6 +61,58 @@ export class CountryComponent implements OnInit {
         console.log('Parties loading complete');
       },
     });
+  }
+
+  protected determineGovernment() {
+    const governmentRoles = ["Rząd"];
+    if (this.includeSupportParties) {
+      governmentRoles.push("Wsparcie");
+    }
+
+    const govParties = this.getPartiesForGraph().filter((p) => governmentRoles.some((role) => p.role?.has(role)));
+    if (govParties.length > 0) {
+      let govGroups = new Set<Group>();
+      let govGroupsNames = new Set<string>();
+
+      govParties.forEach((p) => {
+        if (p.group) {
+          p.group.forEach((group) => {
+            if (!govGroupsNames.has(group.acronym)) {
+              govGroups.add(group);
+              govGroupsNames.add(group.acronym);
+            }
+          });
+        }
+      });
+
+      let CHESData = this.partyService.getSubPartiesCHESData(govParties);
+
+      this.government = {
+        id: 0,
+        acronym: "Koalicja: " + govParties
+          .filter(p => p.role?.has("Rząd"))
+          .sort((a, b) => (b.mp || 0) - (a.mp || 0))
+          .map((g) => g.acronym)
+          .join(", "),
+        stringId: "Wsparcie: " + govParties
+          .filter(p => p.role?.has("Wsparcie"))
+          .sort((a, b) => (b.mp || 0) - (a.mp || 0))
+          .map((g) => g.acronym)
+          .join(", "),
+        englishName: "Government",
+        group: govGroups,
+        role: null,
+        subParties: null,
+        countryCode: null,
+        mp: null,
+        localName: null,
+        CHES_EU: CHESData[0],
+        CHES_Economy: CHESData[1],
+        CHES_Progress: CHESData[2],
+        CHES_Liberal: CHESData[3],
+      };
+      this.cdr.detectChanges();
+    }
   }
 
   getPartiesForGraph(): Party[] {
@@ -122,12 +181,8 @@ export class CountryComponent implements OnInit {
 
   getPartyColorGradient(party: Party): string {
     if (party.group && party.group.size > 0) {
-      const colors = Array.from(party.group).map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
-
-      // If there is only one color, return that color as a solid background
-      if (colors.length === 1) {
-        return colors[0];
-      }
+      const colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
+        .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
 
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(${colors.join(', ')})`;
@@ -144,7 +199,7 @@ export class CountryComponent implements OnInit {
   }
 
   getPartyGroups(party: Party): string {
-    return party.group ? "Grupa: " + Array.from(party.group).map(g => g.acronym).join(', ') : '-';
+    return party.group ? "Grupa: " + Array.from(party.group).sort((a,b) => {return a.id - b.id}).map(g => g.acronym).join(', ') : '-';
   }
 
   getRoles(party: Party): string {
@@ -171,5 +226,9 @@ export class CountryComponent implements OnInit {
   calculateMarginLeft(subLevel: number): string {
     const baseMargin = this.screenWidth <= 768 ? 30 : 50; // Use a smaller margin for mobile
     return `${subLevel * baseMargin}px`;
+  }
+
+  hasSupport(): boolean {
+    return this.parties.some(p => p.role?.has("Wsparcie")) || false;
   }
 }
