@@ -31,6 +31,7 @@ export class CountryComponent implements OnInit {
   screenWidth: number = window.innerWidth;
   government: Party | null = null;
   includeSupportParties = false;
+  showExcludedParties = false;
 
   constructor(private route: ActivatedRoute, private partyService: PartyService, private cdr: ChangeDetectorRef) {
     this.onResize();
@@ -111,7 +112,6 @@ export class CountryComponent implements OnInit {
         CHES_Progress: CHESData[2],
         CHES_Liberal: CHESData[3],
       };
-      this.cdr.detectChanges();
     }
   }
 
@@ -140,10 +140,15 @@ export class CountryComponent implements OnInit {
     return this.parties;
   }
 
-  getPartiesForList(): (Party & { subLevel: number })[] {
+  getPartiesForList(excluded: boolean = false): (Party & { subLevel: number })[] {
     const subPartyIds = new Set<number>();
 
-    const partiesWithMPs = this.parties.filter(p => p.mp != null);
+    let partiesWithMPs: Party[] = [];
+    if (excluded) {
+      partiesWithMPs = this.parties.filter(p => p.mp == null || p.mp == 0);
+    } else {
+      partiesWithMPs = this.parties.filter(p => p.mp != null);
+    }
 
     const collectSubPartyIds = (party: Party) => {
       if (party.subParties && party.subParties.length > 0) {
@@ -158,7 +163,13 @@ export class CountryComponent implements OnInit {
       collectSubPartyIds(party);
     });
 
-    const topLevelParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id)).sort((a, b) => (b.mp || 0) - (a.mp || 0));
+    const filteredParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id));
+    let topLevelParties: Party[] = [];
+    if (excluded) {
+      topLevelParties = filteredParties.sort((a, b) => ((b.CHES_Liberal != null ? 2 : 0) + (b.group != null && b.group.size > 0 ? 1 : 0)) - ((a.CHES_Liberal != null ? 2 : 0) + (a.group && a.group.size > 0 != null ? 1 : 0)))
+    } else {
+      topLevelParties = filteredParties.sort((a, b) => (b.mp || 0) - (a.mp || 0));
+    }
 
     const sortedParties: (Party & { subLevel: number })[] = [];
 

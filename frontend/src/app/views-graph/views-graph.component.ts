@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {Party} from "../models/party.model";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 

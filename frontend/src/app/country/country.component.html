@@ -22,7 +22,6 @@
     </div>
   </div>
 
-  <!-- Add the toggle switch -->
   <div class="toggle-container" *ngIf="hasSupport()">
     <label>
       <input type="checkbox" [(ngModel)]="includeSupportParties" (change)="determineGovernment()" />
@@ -51,10 +50,42 @@
         </div>
 
         <!-- Views graph container now adjusted for mobile layout in CSS -->
-        <div class="views-graph-container">
+        <div class="views-graph-container" *ngIf="party.CHES_Liberal != null">
           <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="toggle-container">
+    <label>
+      <input type="checkbox" [(ngModel)]="showExcludedParties" />
+      Wyświetl partie spoza parlamentu
+    </label>
+  </div>
+
+  <div class="party-container" *ngIf="showExcludedParties">
+    <div *ngFor="let party of getPartiesForList(true)"
+         class="party-item"
+         [ngStyle]="{'margin-left': calculateMarginLeft(party.subLevel)}"
+         [id]="party.acronym">
+      <div class="party-details">
+        <div class="party-color-bar" [ngStyle]="{'background': getPartyColorGradient(party)}"></div>
+        <div class="party-info">
+          <h3>{{ party.acronym }}</h3>
+          <p *ngIf="party.localName">{{ party.localName.join(', ') }}</p>
+          <div class="party-groups" *ngIf="party.group && party.group.size > 0">
+            <p>{{ getPartyGroups(party) }}</p>
+          </div>
+          <p>Liczba posłów: {{ party.mp || 0 }}</p>
+        </div>
+
+        <!-- Views graph container now adjusted for mobile layout in CSS -->
+        <div class="views-graph-container" *ngIf="party.CHES_Liberal != null">
+          <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
 </div>
