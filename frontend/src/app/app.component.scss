@@ -58,6 +58,8 @@ main {
   flex: 1;
   padding-top: 70px; /* Adjust based on the height of the header */
   min-height: calc(100vh - 140px); /* Adjust based on the height of header and footer */
+  padding-left: 10px;
+  padding-right: 10px;
 
   @media (min-width: 768px) {
     max-width: 1200px; /* Set max width for larger screens */

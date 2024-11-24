@@ -537,7 +537,7 @@ export class PartyService {
   }
 
   private addMultipleFields(line: string, marker: string, targetArray: string[]): void {
-    const regex = new RegExp(`${marker}\\s(.+?)\\s`, 'g');
+    const regex = new RegExp(`${marker}(.*?)(?=•|$)`, 'g');
     let match;
     while ((match = regex.exec(line)) !== null) {
       targetArray.push(match[1].trim());
@@ -575,7 +575,7 @@ export class PartyService {
     // Second pass: normalize values based on total support
     tempResults.forEach(result => {
       const normalizedValue = (result.value / totalSupport) * 100; // Calculate percentage
-      results.push({ party: result.party, value: normalizedValue });
+      results.push({ party: result.party, value: Math.round(normalizedValue * 10) / 10 });
     });
 
     return results;

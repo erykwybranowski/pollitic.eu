@@ -196,3 +196,17 @@
     }
   }
 }
+.poll-info {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .poll-line {
+    display: flex;
+    justify-content: center;
+    gap: 5px; // Space between elements in the same line
+
+    p {
+      margin: 0; // Remove default margin for a clean look
+    }
+  }
+}

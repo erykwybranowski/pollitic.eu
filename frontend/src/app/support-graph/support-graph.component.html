@@ -1,3 +1,13 @@
+<div *ngIf="supportData.length > 0" class="poll-info">
+  <div class="poll-line">
+    <p>Sondaż {{ supportData[0].pollster }}</p>
+    <p *ngIf="supportData[0].media.length > 0">dla {{ supportData[0].media.join(", ") }}</p>
+  </div>
+  <div class="poll-line">
+    <p>{{ formatDate(supportData[0].startDate) }} - {{ formatDate(supportData[0].finishDate) }}</p>
+    <p *ngIf="supportData[0].sample">| Próba: {{ supportData[0].sample }}</p>
+  </div>
+</div>
 <div #supportGraphContainer class="support-graph-container">
   <div #supportGraph class="support-graph">
     <div class="arrow"></div> <!-- Arrow above party columns -->

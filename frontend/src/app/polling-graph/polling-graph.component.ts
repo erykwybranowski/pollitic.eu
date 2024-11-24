@@ -15,24 +15,17 @@ import {Group} from "../models/group.model";
 export class PollingGraphComponent implements OnInit {
   @Input() countryCode: string = '';
   @Input() parties: Party[] = [];
-  polls: Poll[] = [];
+  @Input() polls: Poll[] = [];
   chart: Chart | null = null;
   colorsUsed: Record<string, number> = {};
   partyColors: Record<string, string> = {};
 
-  constructor(private partyService: PartyService, private ngZone: NgZone) {
+  constructor(private ngZone: NgZone) {
     Chart.register(...registerables);
   }
 
   ngOnInit(): void {
-    this.loadPolls();
-  }
-
-  private loadPolls(): void {
-    this.partyService.getPolls(this.countryCode, this.parties).subscribe((polls) => {
-      this.polls = polls;
-      this.createGraph();
-    });
+    this.createGraph();
   }
 
   private createGraph(): void {

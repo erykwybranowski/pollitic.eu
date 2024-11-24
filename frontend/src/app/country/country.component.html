@@ -1,8 +1,10 @@
 <div class="party-list">
   <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
 
+<!--  Parliament composition-->
   <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>
 
+<!--  Government-->
   <div *ngIf="government != null" class="party-container">
     <div class="party-item">
       <div class="party-details">
@@ -29,7 +31,19 @@
     </label>
   </div>
 
-  <app-polling-graph *ngIf="getPartiesForPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()"></app-polling-graph>
+  <h2>Wykres poparcia</h2>
+  <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls()"></app-polling-graph>
+
+  <h2>Najnowsze sondaże</h2>
+  <div class="support-graph-container">
+    <div class="arrows">
+      <button class="arrow left-arrow" [disabled]="currentPollIndex === 0" (click)="goToPreviousPoll()"> &lt; </button>
+      <button class="arrow right-arrow" [disabled]="currentPollIndex === getPolls().length - 1" (click)="goToNextPoll()"> &gt; </button>
+    </div>
+    <div class="scrollable-graph">
+      <app-support-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [parties]="getPartiesForPolls()" (partySelected)="scrollToParty($event)" [supportData]="getSupportData(currentPollIndex)"></app-support-graph>
+    </div>
+  </div>
 
   <!-- List of Parties with MPs -->
   <div class="party-container">
@@ -60,10 +74,11 @@
   <div class="toggle-container">
     <label>
       <input type="checkbox" [(ngModel)]="showExcludedParties" />
-      Wyświetl partie spoza parlamentu
+      Wyświetl partie spoza parlamentu i partie rozwiązane
     </label>
   </div>
 
+<!--  List of parties without MPs-->
   <div class="party-container" *ngIf="showExcludedParties">
     <div *ngFor="let party of getPartiesForList(true)"
          class="party-item"

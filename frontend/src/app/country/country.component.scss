@@ -110,6 +110,78 @@
       margin-bottom: 0; /* Ensure no extra space below graph */
     }
   }
+  .support-graph-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .arrows {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px; /* Adds spacing between arrows and graph for mobile */
+    z-index: 10; /* Ensures arrows stay on top */
+  }
+
+  .arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background-color: #ccc;
+    border: 2px solid #999;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #bbb;
+    }
+  }
+
+  .scrollable-graph {
+    flex: 1;
+    overflow-x: auto;
+    white-space: nowrap; /* Keeps graph content in a single row */
+    margin-top: 10px; /* Adds spacing for mobile */
+    max-width: 100%; /* Ensures graph stays within bounds */
+  }
+
+  @media (min-width: 769px) {
+    .support-graph-container {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .arrows {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0; /* Remove mobile margin for desktop */
+      width: 100%; /* Arrows span the full container width */
+    }
+
+    .arrow.left-arrow {
+      left: 0;
+    }
+
+    .arrow.right-arrow {
+      right: 0;
+    }
+
+    .scrollable-graph {
+      flex-grow: 1;
+      margin: 0 60px; /* Leaves space for the arrows */
+      max-width: calc(100% - 120px); /* Accounts for arrow widths */
+      display: block; /* Ensures visibility */
+    }
+  }
 }
 .toggle-container {
   margin-bottom: 40px;
@@ -126,3 +198,4 @@
 .toggle-container input[type="checkbox"] {
   margin-right: 0.5rem;
 }
+

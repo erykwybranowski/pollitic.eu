@@ -10,4 +10,5 @@ export interface Poll {
   sample: number | null;
   results: {party: Party[], value: number}[];
   others: number;
+  area?: string;
 }

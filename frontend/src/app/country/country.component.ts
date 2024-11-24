@@ -8,6 +8,7 @@ import { SupportGraphComponent } from '../support-graph/support-graph.component'
 import {PollingGraphComponent} from "../polling-graph/polling-graph.component";
 import {Group} from "../models/group.model";
 import {FormsModule} from "@angular/forms";
+import {Poll} from "../models/poll.model";
 
 @Component({
   selector: 'app-country',
@@ -32,6 +33,8 @@ export class CountryComponent implements OnInit {
   government: Party | null = null;
   includeSupportParties = false;
   showExcludedParties = false;
+  polls: Poll[] = [];
+  currentPollIndex = 0;
 
   constructor(private route: ActivatedRoute, private partyService: PartyService, private cdr: ChangeDetectorRef) {
     this.onResize();
@@ -52,7 +55,7 @@ export class CountryComponent implements OnInit {
     this.partyService.getParties(this.countryCode).subscribe({
       next: (parties: Party[]) => {
         this.parties = parties;
-
+        this.loadPolls();
         this.determineGovernment();
       },
       error: (error) => {
@@ -61,6 +64,13 @@ export class CountryComponent implements OnInit {
       complete: () => {
         console.log('Parties loading complete');
       },
+    });
+  }
+
+  private loadPolls() {
+    this.partyService.getPolls(this.countryCode, this.parties).subscribe((polls) => {
+      this.polls = polls;
+      console.log("Polls loading complete")
     });
   }
 
@@ -138,6 +148,10 @@ export class CountryComponent implements OnInit {
 
   getPartiesForPolls(): Party[] {
     return this.parties;
+  }
+
+  getPolls(): Poll[] {
+    return this.polls;
   }
 
   getPartiesForList(excluded: boolean = false): (Party & { subLevel: number })[] {
@@ -221,16 +235,28 @@ export class CountryComponent implements OnInit {
   }
 
   scrollToParty(partyAcronym: string): void {
-    const targetElement  = document.getElementById(partyAcronym);
+    let targetElement  = document.getElementById(partyAcronym);
     if (targetElement) {
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - (window.innerHeight / 2 - targetElement.offsetHeight / 2);
+      this.goToTargetElement(targetElement);
+    } else if (this.getPartiesForList(true).some(p => p.acronym == partyAcronym)) {
+      this.showExcludedParties = true;
+      this.cdr.detectChanges();
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      targetElement = document.getElementById(partyAcronym);
+      if (targetElement) {
+        this.goToTargetElement(targetElement);
+        }
     }
+  }
+
+  goToTargetElement(targetElement: HTMLElement): void {
+    const elementPosition = targetElement.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - (window.innerHeight / 2 - targetElement.offsetHeight / 2);
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
   }
 
   // Calculate margin-left based on sublevel and screen size
@@ -241,5 +267,36 @@ export class CountryComponent implements OnInit {
 
   hasSupport(): boolean {
     return this.parties.some(p => p.role?.has("Wsparcie")) || false;
+  }
+
+  getSupportData(number: number): Poll[] {
+    let currentPoll = this.polls[number];
+    let previousPoll: Poll | null = null;
+    for (let i = number + 1; i < this.polls.length; i++) {
+      if (this.polls[i].pollster == currentPoll.pollster) {
+        previousPoll = this.polls[i];
+        break;
+      }
+    }
+    let result: Poll[] = [currentPoll];
+    if (previousPoll) {
+      result.push(previousPoll);
+    }
+    return result;
+    // return this.polls[number].results.map((result) => ({
+    //   acronym: result.party.map(p => p.stringId).join("+"),
+    //   support: Math.round(result.value * 10) / 10}))
+  }
+
+  goToPreviousPoll(): void {
+    if (this.currentPollIndex > 0) {
+      this.currentPollIndex--;
+    }
+  }
+
+  goToNextPoll(): void {
+    if (this.currentPollIndex < this.polls.length - 1) {
+      this.currentPollIndex++;
+    }
   }
 }

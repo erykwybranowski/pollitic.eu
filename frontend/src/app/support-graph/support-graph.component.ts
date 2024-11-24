@@ -4,7 +4,7 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  Input,
+  Input, OnChanges,
   OnInit,
   Output,
   ViewChild
@@ -12,6 +12,9 @@ import {
 import {Party} from "../models/party.model";
 import {ViewsGraphComponent} from "../views-graph/views-graph.component";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {Group} from "../models/group.model";
+import {PartyService} from "../services/party.service";
+import {Poll} from "../models/poll.model";
 
 @Component({
   selector: 'app-support-graph',
@@ -25,9 +28,9 @@ import {NgClass, NgForOf, NgIf} from "@angular/common";
   templateUrl: './support-graph.component.html',
   styleUrl: './support-graph.component.scss'
 })
-export class SupportGraphComponent implements OnInit, AfterViewInit {
+export class SupportGraphComponent implements OnChanges, AfterViewInit {
   @Input() parties: Party[] = []; // List of Party objects
-  @Input() supportData: { acronym: string, support: number }[] = []; // List of support data pairs [acronym - support number]
+  @Input() supportData: Poll[] = []; // List of support data pairs [acronym - support number]
   @ViewChild('supportGraphContainer') supportGraphContainer!: ElementRef;
   @ViewChild('supportGraph') supportGraph!: ElementRef;
   @Output() partySelected = new EventEmitter<string>();
@@ -38,7 +41,10 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
 
   isDesktop: boolean = true;
 
-  ngOnInit() {
+  constructor(private partyService: PartyService) {
+  }
+
+  ngOnChanges() {
     this.updateIsDesktop();
     this.processData();
   }
@@ -69,10 +75,47 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
 
   processData() {
     if (this.supportData && this.supportData.length > 0) {
-      // Use support numbers for visualization
-      this.sortedParties = this.parties.map(party => {
-        const supportEntry = this.supportData.find(support => support.acronym === party.acronym);
-        return { ...party, support: supportEntry ? supportEntry.support : 0, leftIcons : false, rightIcons : false};
+      this.sortedParties = this.supportData[0].results.map(result => {
+        if (result.party.length === 1) {
+          let party = result.party[0];
+          return { ...party, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
+        }
+
+        let subParties: Party[] = [];
+        let groups: Set<Group> = new Set<Group>();
+        let roles: Set<string> = new Set<string>();
+
+        for (let party of result.party) {
+          subParties.push(party);
+          if (party.group && party.group.size > 0) {
+            party.group.forEach(g => groups.add(g));
+          }
+          if (party.role && party.role.size > 0) {
+            party.role.forEach(r => roles.add(r));
+          }
+        }
+
+        let CHESData = this.partyService.getSubPartiesCHESData(subParties);
+
+        return {
+          id: 0,
+          acronym: subParties.map(p => p.acronym).join("/"),
+          stringId: subParties.map(p => p.acronym).join("/"),
+          englishName: subParties.map(p => p.acronym).join("/"),
+          group: groups,
+          role: roles,
+          subParties: null,
+          countryCode: null,
+          mp: null,
+          localName: null,
+          CHES_EU: CHESData[0],
+          CHES_Economy: CHESData[1],
+          CHES_Progress: CHESData[2],
+          CHES_Liberal: CHESData[3],
+          support: result.value,
+          leftIcons: !this.isDesktop,
+          rightIcons: !this.isDesktop,
+        };
       });
       this.maxNumber = Math.max(...this.sortedParties.map(p => p.support ?? 0));
     } else {
@@ -145,5 +188,12 @@ export class SupportGraphComponent implements OnInit, AfterViewInit {
 
   onPartyClick(partyAcronym: string): void {
     this.partySelected.emit(partyAcronym);
+  }
+
+  formatDate(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
   }
 }
