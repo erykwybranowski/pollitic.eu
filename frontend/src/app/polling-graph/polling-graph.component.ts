@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PartyService } from '../services/party.service';
 import { Poll } from '../models/poll.model';
 import { Party } from '../models/party.model';
 import { Chart, registerables } from 'chart.js';
@@ -107,9 +106,7 @@ export class PollingGraphComponent implements OnInit {
       const pollMonth = poll.finishDate.toISOString().slice(0, 7); // Format: YYYY-MM
       poll.results.forEach((result) => {
         // Generate the key for the partySupport record
-        const partyKey = result.party.length === 1
-          ? result.party[0].acronym
-          : result.party.map((p) => p.acronym).join('/');
+        const partyKey = result.party.acronym;
 
         // Initialize nested structures if they don't exist
         if (!partySupport[partyKey]) {

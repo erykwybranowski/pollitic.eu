@@ -98,27 +98,41 @@
   flex-direction: column-reverse;
   align-items: center;
   width: 70px;
-  height: 80%;
+  height: 100%;
 
-  .party-bar {
+  .party-bar-container {
     width: 100%;
     position: relative;
-    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .party-bar-desktop {
+    position: relative;
+    width: 100%;
+    height: 0;
     transition: transform 0.3s ease;
     cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin: 0;
 
     &:hover {
       transform: scale(1.05);
     }
 
-    .support-label {
+    .support-label-desktop {
       position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 20px;
+      top: -25px; /* Adjust label height above the bar */
+      left: 50%; /* Center horizontally */
+      transform: translateX(-50%); /* Adjust for centering */
       font-weight: bold;
+      color: black;
       text-align: center;
+      white-space: nowrap; /* Prevent wrapping of label text */
     }
   }
 
@@ -188,7 +202,6 @@
         }
 
         .party-bar {
-          height: 50px;
           width: 100%;
           min-width: 0;
         }

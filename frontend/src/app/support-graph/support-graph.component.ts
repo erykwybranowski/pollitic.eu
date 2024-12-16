@@ -5,15 +5,12 @@ import {
   EventEmitter,
   HostListener,
   Input, OnChanges,
-  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
 import {Party} from "../models/party.model";
 import {ViewsGraphComponent} from "../views-graph/views-graph.component";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
-import {Group} from "../models/group.model";
-import {PartyService} from "../services/party.service";
 import {Poll} from "../models/poll.model";
 
 @Component({
@@ -36,12 +33,12 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   @Output() partySelected = new EventEmitter<string>();
 
   maxNumber: number = 0;
-  sortedParties: (Party & { support?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
+  sortedParties: (Party & { support?: number, previousSupport?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
   chesEuParties: (Party & { support?: number })[] = [];  // Array for parties with CHES_EU
 
   isDesktop: boolean = true;
 
-  constructor(private partyService: PartyService) {
+  constructor() {
   }
 
   ngOnChanges() {
@@ -76,48 +73,14 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   processData() {
     if (this.supportData && this.supportData.length > 0) {
       this.sortedParties = this.supportData[0].results.map(result => {
-        if (result.party.length === 1) {
-          let party = result.party[0];
-          return { ...party, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
+        if (this.supportData.length === 2 && this.supportData[1].results.some(oldPoll => oldPoll.party.acronym == result.party.acronym)) {
+          let previousSupport = this.supportData[1].results.find(oldPoll => oldPoll.party.acronym == result.party.acronym)!.value;
+          this.maxNumber = Math.max(this.maxNumber, result.value, previousSupport);
+          return { ...result.party, support: result.value, previousSupport: previousSupport, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
         }
-
-        let subParties: Party[] = [];
-        let groups: Set<Group> = new Set<Group>();
-        let roles: Set<string> = new Set<string>();
-
-        for (let party of result.party) {
-          subParties.push(party);
-          if (party.group && party.group.size > 0) {
-            party.group.forEach(g => groups.add(g));
-          }
-          if (party.role && party.role.size > 0) {
-            party.role.forEach(r => roles.add(r));
-          }
-        }
-
-        let CHESData = this.partyService.getSubPartiesCHESData(subParties);
-
-        return {
-          id: 0,
-          acronym: subParties.map(p => p.acronym).join("/"),
-          stringId: subParties.map(p => p.acronym).join("/"),
-          englishName: subParties.map(p => p.acronym).join("/"),
-          group: groups,
-          role: roles,
-          subParties: null,
-          countryCode: null,
-          mp: null,
-          localName: null,
-          CHES_EU: CHESData[0],
-          CHES_Economy: CHESData[1],
-          CHES_Progress: CHESData[2],
-          CHES_Liberal: CHESData[3],
-          support: result.value,
-          leftIcons: !this.isDesktop,
-          rightIcons: !this.isDesktop,
-        };
+        this.maxNumber = Math.max(this.maxNumber, result.value);
+        return { ...result.party, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
       });
-      this.maxNumber = Math.max(...this.sortedParties.map(p => p.support ?? 0));
     } else {
       // Use MP numbers for visualization
       this.sortedParties = this.parties.map(party => {
@@ -148,26 +111,37 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
     return (economy + progress + liberal) * (4 + eu);
   }
 
-  getPartyHeight(party: Party  & { support?: number }): string {
-    const maxValue = Math.max(...this.sortedParties.map(p => this.supportData.length > 0 ? p.support ?? 0 : p.mp ?? 0));
-    const partyValue = this.supportData.length > 0 ? party.support ?? 0 : party.mp ?? 0;
-
+  getPartyHeight(party: Party & { support?: number, previousSupport?: number}, previousPoll: boolean): string {
+    let partyValue: number;
+    if (previousPoll) {
+      partyValue = party.previousSupport || 0;
+    } else {
+      partyValue = this.supportData.length > 0 ? party.support ?? 0 : party.mp ?? 0;
+    }
     // Calculate percentage height relative to the max value
-    const heightPercentage = (partyValue / maxValue) * 100;
+    const heightPercentage = (partyValue / this.maxNumber) * 100;
 
     return `${heightPercentage}%`;  // Return as a percentage to set in the inline style
   }
 
-  getPartyColor(party: Party): string {
+  getPartyColor(party: Party, previousPoll: boolean): string {
     if (party.group && party.group.size > 0) {
-      const colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-        .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
-
+      let colors: string[];
+      if (previousPoll) {
+        colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
+          .map(group => `rgba(${group.color.R}, ${group.color.G}, ${group.color.B}, 0.3), rgb(${group.color.R}, ${group.color.G}, ${group.color.B}, 0.3)`);
+      } else {
+        colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
+          .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
+      }
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(to right, ${colors.join(', ')})`;
     }
 
     // If no group, return gray
+    if (previousPoll) {
+      return 'lightgray';
+    }
     return 'gray';
   }
 

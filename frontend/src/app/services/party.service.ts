@@ -18,10 +18,10 @@ export class PartyService {
 
   // Method to get countries
   getCountries(): Observable<Country[]> {
-    if (environment.production) {
-      // Production: You will later implement this with HTTP calls
-      return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
-    } else {
+    // if (environment.production) {
+    //   // Production: You will later implement this with HTTP calls
+    //   return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
+    // } else {
       // Development version: hardcoded countries list
       return of([
         {id: 1, countryCode: 'pl', name: 'Polska'},
@@ -52,7 +52,7 @@ export class PartyService {
         {id: 26, countryCode: 'hu', name: 'Węgry'},
         {id: 27, countryCode: 'it', name: 'Włochy'}
       ]);
-    }
+    // }
   }
 
   // Method to get parties based on the country
@@ -544,13 +544,13 @@ export class PartyService {
     }
   }
 
-  private extractResults(line: string, parties: Party[]): { party: Party[], value: number }[] {
-    const results: { party: Party[], value: number }[] = [];
+  private extractResults(line: string, parties: Party[]): { party: Party, value: number }[] {
+    const results: { party: Party, value: number }[] = [];
     const regex = /\s([\p{L}\w\-+]+):\s(\d+(\.\d+)?)/ug;
 
     let match;
     let totalSupport = 0;
-    const tempResults: { party: Party[], value: number }[] = [];
+    const tempResults: { party: Party, value: number }[] = [];
 
     // First pass: collect results and calculate total support
     while ((match = regex.exec(line)) !== null) {
@@ -560,14 +560,43 @@ export class PartyService {
 
       const party = parties.find(p => p.stringId === acronym);
       if (party) {
-        tempResults.push({ party: [party], value });
+        tempResults.push({ party: party, value });
       } else if (acronym.includes("+")) {
         const subAcronyms = acronym.split("+").map(sub => sub.trim());
         const allParties = subAcronyms
           .map(sub => parties.find(p => p.stringId === sub))
           .filter((party): party is Party => !!party); // Exclude null/undefined
         if (allParties.length > 0) {
-          tempResults.push({ party: allParties, value });
+          let groups: Set<Group> = new Set<Group>();
+          let roles: Set<string> = new Set<string>();
+
+          for (let party of allParties) {
+            if (party.group && party.group.size > 0) {
+              party.group.forEach(g => groups.add(g));
+            }
+            if (party.role && party.role.size > 0) {
+              party.role.forEach(r => roles.add(r));
+            }
+          }
+          let CHESData = this.getSubPartiesCHESData(allParties);
+
+          let newParty: Party = {
+            id: 0,
+            acronym: allParties.map(p => p.acronym).join("/"),
+            stringId: allParties.map(p => p.acronym).join("/"),
+            englishName: allParties.map(p => p.acronym).join("/"),
+            group: groups,
+            role: roles,
+            subParties: null,
+            countryCode: null,
+            mp: null,
+            localName: null,
+            CHES_EU: CHESData[0],
+            CHES_Economy: CHESData[1],
+            CHES_Progress: CHESData[2],
+            CHES_Liberal: CHESData[3]
+          }
+          tempResults.push({ party: newParty, value });
         }
       }
     }

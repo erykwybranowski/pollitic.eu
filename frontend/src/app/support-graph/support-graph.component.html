@@ -7,6 +7,10 @@
     <p>{{ formatDate(supportData[0].startDate) }} - {{ formatDate(supportData[0].finishDate) }}</p>
     <p *ngIf="supportData[0].sample">| Próba: {{ supportData[0].sample }}</p>
   </div>
+  <div class="poll-line">
+    <p *ngIf="supportData.length > 1">Porównanie z sondażem {{supportData[1].pollster}} z {{ formatDate(supportData[1].startDate) }} - {{ formatDate(supportData[1].finishDate) }}</p>
+    <p *ngIf="supportData.length == 1">Pierwszy sondaż {{supportData[0].pollster}}</p>
+  </div>
 </div>
 <div #supportGraphContainer class="support-graph-container">
   <div #supportGraph class="support-graph">
@@ -18,12 +22,19 @@
       <div *ngIf="isDesktop" class="party-groups">{{ getPartyGroupAcronyms(party) }}</div>
       <div *ngIf="isDesktop" class="party-acronym">{{ party.acronym }}</div>
       <div *ngIf="isDesktop" class="party-role">{{ getRoles(party) }}</div>
-      <div *ngIf="isDesktop" class="party-bar"
-           [style.min-height]="getPartyHeight(party)"
-           [style.background]="getPartyColor(party)">
-        <span class="support-label">
-          {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
-        </span>
+      <div *ngIf="isDesktop" class="party-bar-container">
+        <div *ngIf="party.previousSupport != null" class="party-bar-desktop"
+             [style.min-height]="getPartyHeight(party, true)"
+             [style.background]="getPartyColor(party, true)"
+             [style.font-size]="'70%'">
+          <span class="support-label-desktop">{{ party.previousSupport }}%</span>
+        </div>
+        <div class="party-bar-desktop"
+             [style.min-height]="getPartyHeight(party, false)"
+             [style.background]="getPartyColor(party, false)"
+             [style.font-size]="party.previousSupport != null ? '70%' : '100%'">
+          <span class="support-label-desktop">{{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}</span>
+        </div>
       </div>
 
       <!-- Mobile layout adjustments -->
@@ -31,12 +42,23 @@
         <div class="party-acronym" [ngClass]="{'bold': party.role?.has('Rząd')}">
           {{ party.acronym }}
         </div>
+        <div class="bottom-row" *ngIf="party.previousSupport != null">
+          <div class="party-bar"
+               [style.background]="getPartyColor(party, true)"
+               [style.width]="getPartyHeight(party, true)"
+               [style.height]="'25px'">
+          </div>
+          <span class="support-label" [style.padding-left]="getPartyHeight(party, true)">
+            {{ party.previousSupport }}
+          </span>
+        </div>
         <div class="bottom-row">
           <div class="party-bar"
-               [style.background]="getPartyColor(party)"
-               [style.width]="getPartyHeight(party)">
+               [style.background]="getPartyColor(party, false)"
+               [style.width]="getPartyHeight(party, false)"
+               [style.height]="party.previousSupport ? '25px' : '50px'">
           </div>
-          <span class="support-label" [style.padding-left]="getPartyHeight(party)">
+          <span class="support-label" [style.padding-left]="getPartyHeight(party, false)">
             {{ supportData.length > 0 ? (party.support ?? 0) + '%' : party.mp }}
           </span>
         </div>
