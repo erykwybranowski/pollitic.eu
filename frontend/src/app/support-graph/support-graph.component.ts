@@ -129,10 +129,10 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
       let colors: string[];
       if (previousPoll) {
         colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-          .map(group => `rgba(${group.color.R}, ${group.color.G}, ${group.color.B}, 0.3), rgb(${group.color.R}, ${group.color.G}, ${group.color.B}, 0.3)`);
+          .map(group => `rgba(${group.R}, ${group.G}, ${group.B}, 0.3), rgb(${group.R}, ${group.G}, ${group.B}, 0.3)`);
       } else {
         colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-          .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
+          .map(group => `rgb(${group.R}, ${group.G}, ${group.B}), rgb(${group.R}, ${group.G}, ${group.B})`);
       }
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(to right, ${colors.join(', ')})`;

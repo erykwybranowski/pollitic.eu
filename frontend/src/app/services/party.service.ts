@@ -18,47 +18,51 @@ export class PartyService {
 
   // Method to get countries
   getCountries(): Observable<Country[]> {
-    // if (environment.production) {
-    //   // Production: You will later implement this with HTTP calls
-    //   return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
-    // } else {
+    if (environment.production) {
+      console.log("PRODUCTION ENVIRONMENT")
+      console.log("env name " + environment.environmentName)
+      // Production: You will later implement this with HTTP calls
+      return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
+    } else {
+      console.log("DEVELOPMENT ENVIRONMENT")
+      console.log("env name " + environment.environmentName)
       // Development version: hardcoded countries list
       return of([
-        {id: 1, countryCode: 'pl', name: 'Polska'},
-        {id: 2, countryCode: 'de', name: 'Niemcy'},
-        {id: 3, countryCode: 'at', name: 'Austria'},
-        {id: 4, countryCode: 'be', name: 'Belgia'},
-        {id: 5, countryCode: 'bg', name: 'Bułgaria'},
-        {id: 6, countryCode: 'hr', name: 'Chorwacja'},
-        {id: 7, countryCode: 'cy', name: 'Cypr'},
-        {id: 8, countryCode: 'cz', name: 'Czechy'},
-        {id: 9, countryCode: 'dk', name: 'Dania'},
-        {id: 10, countryCode: 'ee', name: 'Estonia'},
-        {id: 11, countryCode: 'fi', name: 'Finlandia'},
-        {id: 12, countryCode: 'fr', name: 'Francja'},
-        {id: 13, countryCode: 'gr', name: 'Grecja'},
-        {id: 14, countryCode: 'es', name: 'Hiszpania'},
-        {id: 15, countryCode: 'nl', name: 'Holandia'},
-        {id: 16, countryCode: 'ie', name: 'Irlandia'},
-        {id: 17, countryCode: 'lt', name: 'Litwa'},
-        {id: 18, countryCode: 'lu', name: 'Luksemburg'},
-        {id: 19, countryCode: 'lv', name: 'Łotwa'},
-        {id: 20, countryCode: 'mt', name: 'Malta'},
-        {id: 21, countryCode: 'pt', name: 'Portugalia'},
-        {id: 22, countryCode: 'ro', name: 'Rumunia'},
-        {id: 23, countryCode: 'sk', name: 'Słowacja'},
-        {id: 24, countryCode: 'si', name: 'Słowenia'},
-        {id: 25, countryCode: 'se', name: 'Szwecja'},
-        {id: 26, countryCode: 'hu', name: 'Węgry'},
-        {id: 27, countryCode: 'it', name: 'Włochy'}
+        {id: "1", countryCode: 'at', name: 'Austria'},
+        {id: "2", countryCode: 'be', name: 'Belgia'},
+        {id: "3", countryCode: 'bg', name: 'Bułgaria'},
+        {id: "4", countryCode: 'hr', name: 'Chorwacja'},
+        {id: "5", countryCode: 'cy', name: 'Cypr'},
+        {id: "6", countryCode: 'cz', name: 'Czechy'},
+        {id: "7", countryCode: 'dk', name: 'Dania'},
+        {id: "8", countryCode: 'ee', name: 'Estonia'},
+        {id: "9", countryCode: 'fi', name: 'Finlandia'},
+        {id: "10", countryCode: 'fr', name: 'Francja'},
+        {id: "11", countryCode: 'gr', name: 'Grecja'},
+        {id: "12", countryCode: 'es', name: 'Hiszpania'},
+        {id: "13", countryCode: 'nl', name: 'Holandia'},
+        {id: "14", countryCode: 'ie', name: 'Irlandia'},
+        {id: "15", countryCode: 'lt', name: 'Litwa'},
+        {id: "16", countryCode: 'lu', name: 'Luksemburg'},
+        {id: "17", countryCode: 'lv', name: 'Łotwa'},
+        {id: "18", countryCode: 'mt', name: 'Malta'},
+        {id: "19", countryCode: 'de', name: 'Niemcy'},
+        {id: "20", countryCode: 'pl', name: 'Polska'},
+        {id: "21", countryCode: 'pt', name: 'Portugalia'},
+        {id: "22", countryCode: 'ro', name: 'Rumunia'},
+        {id: "23", countryCode: 'sk', name: 'Słowacja'},
+        {id: "24", countryCode: 'si', name: 'Słowenia'},
+        {id: "25", countryCode: 'se', name: 'Szwecja'},
+        {id: "26", countryCode: 'hu', name: 'Węgry'},
+        {id: "27", countryCode: 'it', name: 'Włochy'}
       ]);
-    // }
+    }
   }
 
   // Method to get parties based on the country
   getParties(country: string): Observable<Party[]> {
     if (environment.production) {
-      return this.http.get<Party[]>(`${environment.apiUrl}/parties?countryCode=${country}`);
+      return this.http.get<Party[]>(`${environment.apiUrl}/parties/${country}`);
     } else {
       const ropfFilePath = `${environment.localDataPath}${country}.ropf`;
 
@@ -204,7 +208,7 @@ export class PartyService {
     }
 
     return {
-      id: id,
+      id: id.toString(),
       stringId: stringId,
       acronym: acronym,
       englishName: englishName,
@@ -418,63 +422,81 @@ export class PartyService {
           id: 0,
           acronym: acronym,
           name: "Progressive Alliance of Socialists and Democrats",
-          color: new class implements Color { R = 138; G = 21; B = 28;}
+          R: 138,
+          G: 21,
+          B: 28
         }
       case "S&D":
         return {
           id: 1,
           acronym: acronym,
           name: "Progressive Alliance of Socialists and Democrats",
-          color: new class implements Color { R = 219; G = 58; B = 46;}
+          R: 219,
+          G: 58,
+          B: 46,
         }
       case "GREENS":
         return {
           id: 2,
           acronym: acronym,
           name: "Greens/European Free Alliance",
-          color: new class implements Color { R = 27; G = 209; B = 36;}
+          R: 27,
+          G: 209,
+          B: 36
         }
       case "RE":
         return {
           id: 3,
           acronym: acronym,
           name: "Renew Europe",
-          color: new class implements Color { R = 238; G = 230; B = 1;}
+          R: 238,
+          G: 230,
+          B: 1
         }
       case "EPP":
         return {
           id: 4,
           acronym: acronym,
           name: "European People's Party",
-          color: new class implements Color { R = 52; G = 143; B = 235;}
+          R: 52,
+          G: 143,
+          B: 235
         }
       case "ECR":
         return {
           id: 5,
           acronym: acronym,
           name: "European Conservatives and Reformists",
-          color: new class implements Color { R = 39; G = 44; B = 186;}
+          R: 39,
+          G: 44,
+          B: 186
         }
       case "PfE":
         return {
           id: 6,
           acronym: acronym,
           name: "Patriots for Europe",
-          color: new class implements Color { R = 76; G = 48; B = 122;}
+          R: 76,
+          G: 48,
+          B: 122
         }
       case "ESN":
         return {
           id: 7,
           acronym: acronym,
           name: "Europe of Sovereign Nations",
-          color: new class implements Color { R = 9; G = 52; B = 92;}
+          R: 9,
+          G: 52,
+          B: 92
         }
       default:
         return {
-          id: 9,
+          id: 8,
           acronym: "undefined",
           name: "undefined",
-          color: new class implements Color { R = 100; G = 100; B = 100;}
+          R: 100,
+          G: 100,
+          B: 100
         }
     }
   }
@@ -514,7 +536,7 @@ export class PartyService {
   // Helper to parse a single line into a Poll object
   private createPollFromLine(line: string, parties: Party[], basePoll?: Poll): Poll {
     const poll: Poll = {
-      id: 0,
+      id: "0",
       pollster: basePoll ? basePoll.pollster : this.extractField(line, '•PF:')!,
       media: basePoll ? [...basePoll.media] : [],
       startDate: basePoll ? basePoll.startDate : new Date(this.extractField(line, '•FS:')!),
@@ -581,7 +603,7 @@ export class PartyService {
           let CHESData = this.getSubPartiesCHESData(allParties);
 
           let newParty: Party = {
-            id: 0,
+            id: "0",
             acronym: allParties.map(p => p.acronym).join("/"),
             stringId: allParties.map(p => p.acronym).join("/"),
             englishName: allParties.map(p => p.acronym).join("/"),

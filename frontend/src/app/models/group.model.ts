@@ -4,5 +4,7 @@ export interface Group {
   id: number;
   acronym: string;
   name: string;
-  color: Color;
+  R: number;
+  G: number;
+  B: number;
 }

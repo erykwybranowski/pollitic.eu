@@ -99,7 +99,7 @@ export class CountryComponent implements OnInit {
       let CHESData = this.partyService.getSubPartiesCHESData(govParties);
 
       this.government = {
-        id: 0,
+        id: "0",
         acronym: "Koalicja: " + govParties
           .filter(p => p.role?.has("Rząd"))
           .sort((a, b) => (b.mp || 0) - (a.mp || 0))
@@ -126,7 +126,7 @@ export class CountryComponent implements OnInit {
   }
 
   getPartiesForGraph(): Party[] {
-    const subPartyIds = new Set<number>();
+    const subPartyIds = new Set<string>();
 
     const partiesWithMPs = this.parties.filter(p => p.mp != null);
 
@@ -155,7 +155,7 @@ export class CountryComponent implements OnInit {
   }
 
   getPartiesForList(excluded: boolean = false): (Party & { subLevel: number })[] {
-    const subPartyIds = new Set<number>();
+    const subPartyIds = new Set<string>();
 
     let partiesWithMPs: Party[] = [];
     if (excluded) {
@@ -207,7 +207,7 @@ export class CountryComponent implements OnInit {
   getPartyColorGradient(party: Party): string {
     if (party.group && party.group.size > 0) {
       const colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-        .map(group => `rgb(${group.color.R}, ${group.color.G}, ${group.color.B}), rgb(${group.color.R}, ${group.color.G}, ${group.color.B})`);
+        .map(group => `rgb(${group.R}, ${group.G}, ${group.B}), rgb(${group.R}, ${group.G}, ${group.B})`);
 
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(${colors.join(', ')})`;

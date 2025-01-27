@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  environmentName: 'development',
+  production: true,
+  environmentName: 'production',
   localDataPath: 'assets/',
-  apiUrl: undefined
+  apiUrl: '/api/public'
 };

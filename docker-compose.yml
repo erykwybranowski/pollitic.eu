@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - my_network
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"  # Use port 8080 for HTTP
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DefaultConnection=Server=db;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};
+      - ENABLE_SSL=${ENABLE_SSL}
+    volumes:
+      - ./certs:/app/certs
+    depends_on:
+      - db
+    networks:
+      - my_network
+    entrypoint: ["sh", "-c", "until nc -z db 3306; do echo 'Waiting for database...'; sleep 5; done; dotnet backend.dll"]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        ENABLE_SSL: ${ENABLE_SSL}
+    volumes:
+      - ./certs:/etc/ssl/certs
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - my_network
+
+volumes:
+  dbdata:
+
+networks:
+  my_network:

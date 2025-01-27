@@ -175,7 +175,7 @@ export class PollingGraphComponent implements OnInit {
       }
 
       if (groups && groups.size > 0) {
-        let selectedGroup = groups.values().next().value;
+        let selectedGroup: Group = groups.values().next().value;
         if (groups.size > 1) {
           selectedGroup = Array.from(groups).reduce((leastUsedGroup : Group, currentGroup : Group) => {
             const currentUsage = this.colorsUsed[currentGroup.acronym] || 0;
@@ -184,7 +184,9 @@ export class PollingGraphComponent implements OnInit {
             return currentUsage < leastUsage ? currentGroup : leastUsedGroup;
           });
         }
-        const { R, G, B } = selectedGroup.color;
+        const R = selectedGroup.R;
+        const G = selectedGroup.G;
+        const B = selectedGroup.B;
         this.colorsUsed[selectedGroup.acronym] = this.colorsUsed[selectedGroup.acronym] ? this.colorsUsed[selectedGroup.acronym] + 1 : 1;
         this.partyColors[party] = `rgb(${R}, ${G}, ${B})`;
       } else {

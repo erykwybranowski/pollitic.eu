@@ -1,7 +1,7 @@
 import {Party} from "./party.model";
 
 export interface Poll {
-  id: number;
+  id: string;
   pollster: string;
   media: string[];
   startDate: Date;

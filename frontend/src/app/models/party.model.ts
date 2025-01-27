@@ -1,7 +1,7 @@
 import {Group} from "./group.model";
 
 export interface Party {
-  id: number;
+  id: string;
   stringId: string;
   acronym: string;
   englishName: string;

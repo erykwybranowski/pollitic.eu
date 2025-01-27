@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  backend:
+    ports:
+      - "5001:5001"  # HTTPS port for backend
+
+  frontend:
+    ports:
+      - "443:443"  # HTTPS port for frontend
