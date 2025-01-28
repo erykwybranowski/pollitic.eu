@@ -10,7 +10,7 @@
         public string Type { get; set; }
         public int? Sample { get; set; }
         public List<PollResult> Results { get; set; }
-        public int Others { get; set; }
+        public double Others { get; set; }
         public string Area { get; set; }
     }
 

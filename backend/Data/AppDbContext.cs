@@ -24,11 +24,7 @@ namespace backend.Data
             // Country Configuration
             modelBuilder.Entity<Country>(entity =>
             {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Id)
-                      .ValueGeneratedOnAdd()
-                      .HasColumnType("char(36)");
+                entity.HasKey(e => e.CountryCode);
 
                 entity.Property(e => e.CountryCode)
                       .IsRequired()
@@ -94,10 +90,56 @@ namespace backend.Data
                       .HasColumnType("varchar(255)");
 
                 entity.Property(e => e.CountryCode)
+                      .IsRequired()
                       .HasColumnType("varchar(10)");
 
                 entity.Property(e => e.Mp)
                       .HasColumnType("int");
+                
+                // Serialize Role to a JSON string
+                entity.Property(e => e.Role)
+                    .HasConversion(
+                        v => string.Join(",", v), // Convert ICollection<string> to CSV
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()) // Convert CSV to ICollection<string>
+                    .HasColumnType("longtext");
+
+                // Serialize LocalName to a JSON string
+                entity.Property(e => e.LocalName)
+                    .HasConversion(
+                        v => string.Join(",", v), // Convert List<string> to CSV
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()) // Convert CSV to List<string>
+                    .HasColumnType("longtext");
+
+                // Serialize CHES attributes to JSON strings
+                entity.Property(e => e.CHES_EU)
+                    .HasConversion(
+                        v => string.Join(",", v.Select(x => x.ToString())), // Convert List<double> to CSV
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToList()) // Convert CSV to List<double>
+                    .HasColumnType("longtext");
+
+                entity.Property(e => e.CHES_Economy)
+                    .HasConversion(
+                        v => string.Join(",", v.Select(x => x.ToString())),
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToList())
+                    .HasColumnType("longtext");
+
+                entity.Property(e => e.CHES_Progress)
+                    .HasConversion(
+                        v => string.Join(",", v.Select(x => x.ToString())),
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToList())
+                    .HasColumnType("longtext");
+
+                entity.Property(e => e.CHES_Liberal)
+                    .HasConversion(
+                        v => string.Join(",", v.Select(x => x.ToString())),
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToList())
+                    .HasColumnType("longtext");
+                
+                entity.HasOne(p => p.Country)
+                    .WithMany(c => c.Parties)
+                    .HasForeignKey(p => p.CountryCode)
+                    .HasPrincipalKey(c => c.CountryCode)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.ToTable("Parties");
             });
@@ -131,10 +173,17 @@ namespace backend.Data
                       .HasColumnType("int");
 
                 entity.Property(e => e.Others)
-                      .HasColumnType("int");
+                      .HasColumnType("double");
 
                 entity.Property(e => e.Area)
                       .HasColumnType("varchar(255)");
+                
+                // Serialize Media to a JSON string
+                entity.Property(e => e.Media)
+                    .HasConversion(
+                        v => string.Join(",", v), // Convert List<string> to CSV
+                        v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()) // Convert CSV to List<string>
+                    .HasColumnType("longtext");
 
                 entity.ToTable("Polls");
             });
@@ -169,69 +218,110 @@ namespace backend.Data
             // Relationships
             modelBuilder.Entity<Party>()
                 .HasMany(p => p.Groups)
-                .WithMany()
-                .UsingEntity(j => j.ToTable("PartyGroups"));
+                .WithMany(g => g.Parties)
+                .UsingEntity<Dictionary<string, object>>(
+                    "PartyGroups",
+                    join => join.HasOne<Group>().WithMany().HasForeignKey("GroupId").OnDelete(DeleteBehavior.Cascade),
+                    join => join.HasOne<Party>().WithMany().HasForeignKey("PartyId").OnDelete(DeleteBehavior.Cascade),
+                    join =>
+                    {
+                        join.ToTable("PartyGroups");
+                        join.HasKey("PartyId", "GroupId");
+                    });
 
+            // Party-SubParties Relationship (Many-to-Many Self-Referencing)
             modelBuilder.Entity<Party>()
                 .HasMany(p => p.SubParties)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "PartySubParties",
+                    join => join.HasOne<Party>() // SubParty
+                        .WithMany()
+                        .HasForeignKey("SubPartyId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    join => join.HasOne<Party>() // ParentParty
+                        .WithMany()
+                        .HasForeignKey("ParentPartyId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    join =>
+                    {
+                        join.ToTable("PartySubParties");
+                        join.HasKey("ParentPartyId", "SubPartyId");
+                    });
+            
+            modelBuilder.Entity<Country>()
+                .HasMany<Party>()
                 .WithOne()
-                .HasForeignKey("ParentPartyId");
-
-            modelBuilder.Entity<Poll>()
-                .HasMany(p => p.Results)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(p => p.CountryCode)
+                .HasPrincipalKey(c => c.CountryCode)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Initialize Countries
             modelBuilder.Entity<Country>().HasData(new[]
             {
-                new Country {Id = Guid.NewGuid(), CountryCode = "at", Name = "Austria" },
-                new Country {Id = Guid.NewGuid(), CountryCode = "be", Name = "Belgia" },
-                new Country {Id = Guid.NewGuid(), CountryCode = "bg", Name = "Bułgaria"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "hr", Name = "Chorwacja"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "cy", Name = "Cypr"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "cz", Name = "Czechy"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "dk", Name = "Dania"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "ee", Name = "Estonia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "fi", Name = "Finlandia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "fr", Name = "Francja"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "gr", Name = "Grecja"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "es", Name = "Hiszpania"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "nl", Name = "Holandia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "ie", Name = "Irlandia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "lt", Name = "Litwa"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "lu", Name = "Luksemburg"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "lv", Name = "Łotwa"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "mt", Name = "Malta"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "de", Name = "Niemcy"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "pl", Name = "Polska"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "pt", Name = "Portugalia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "ro", Name = "Rumunia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "sk", Name = "Słowacja"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "si", Name = "Słowenia"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "se", Name = "Szwecja"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "hu", Name = "Węgry"},
-                new Country {Id = Guid.NewGuid(), CountryCode = "it", Name = "Włochy"}
+                new Country {CountryCode = "at", Name = "Austria" },
+                new Country {CountryCode = "be", Name = "Belgia" },
+                new Country {CountryCode = "bg", Name = "Bułgaria"},
+                new Country {CountryCode = "hr", Name = "Chorwacja"},
+                new Country {CountryCode = "cy", Name = "Cypr"},
+                new Country {CountryCode = "cz", Name = "Czechy"},
+                new Country {CountryCode = "dk", Name = "Dania"},
+                new Country {CountryCode = "ee", Name = "Estonia"},
+                new Country {CountryCode = "fi", Name = "Finlandia"},
+                new Country {CountryCode = "fr", Name = "Francja"},
+                new Country {CountryCode = "gr", Name = "Grecja"},
+                new Country {CountryCode = "es", Name = "Hiszpania"},
+                new Country {CountryCode = "nl", Name = "Holandia"},
+                new Country {CountryCode = "ie", Name = "Irlandia"},
+                new Country {CountryCode = "lt", Name = "Litwa"},
+                new Country {CountryCode = "lu", Name = "Luksemburg"},
+                new Country {CountryCode = "lv", Name = "Łotwa"},
+                new Country {CountryCode = "mt", Name = "Malta"},
+                new Country {CountryCode = "de", Name = "Niemcy"},
+                new Country {CountryCode = "pl", Name = "Polska"},
+                new Country {CountryCode = "pt", Name = "Portugalia"},
+                new Country {CountryCode = "ro", Name = "Rumunia"},
+                new Country {CountryCode = "sk", Name = "Słowacja"},
+                new Country {CountryCode = "si", Name = "Słowenia"},
+                new Country {CountryCode = "se", Name = "Szwecja"},
+                new Country {CountryCode = "hu", Name = "Węgry"},
+                new Country {CountryCode = "it", Name = "Włochy"}
             });
 
             // Initialize Groups
-            modelBuilder.Entity<Group>().HasData(new[]
+            List<Group> groups = new List<Group>()
             {
-                new Group { Id = -8, Acronym = "LEFT", Name = "Progressive Alliance of Socialists and Democrats", R = 138, G = 21, B = 28 },
-                new Group { Id = -7, Acronym = "S&D", Name = "Progressive Alliance of Socialists and Democrats", R = 219, G = 58, B = 46 },
-                new Group { Id = -6, Acronym = "GREENS", Name = "Greens/European Free Alliance", R = 27, G = 209, B = 36 },
+                new Group
+                {
+                    Id = -8, Acronym = "LEFT", Name = "Progressive Alliance of Socialists and Democrats", R = 138,
+                    G = 21, B = 28
+                },
+                new Group
+                {
+                    Id = -7, Acronym = "S&D", Name = "Progressive Alliance of Socialists and Democrats", R = 219,
+                    G = 58, B = 46
+                },
+                new Group
+                {
+                    Id = -6, Acronym = "GREENS", Name = "Greens/European Free Alliance", R = 27, G = 209, B = 36
+                },
                 new Group { Id = -5, Acronym = "RE", Name = "Renew Europe", R = 238, G = 230, B = 1 },
                 new Group { Id = -4, Acronym = "EPP", Name = "European People's Party", R = 52, G = 143, B = 235 },
-                new Group { Id = -3, Acronym = "ECR", Name = "European Conservatives and Reformists", R = 39, G = 44, B = 186 },
+                new Group
+                {
+                    Id = -3, Acronym = "ECR", Name = "European Conservatives and Reformists", R = 39, G = 44, B = 186
+                },
                 new Group { Id = -2, Acronym = "PfE", Name = "Patriots for Europe", R = 76, G = 48, B = 122 },
                 new Group { Id = -1, Acronym = "ESN", Name = "Europe of Sovereign Nations", R = 9, G = 52, B = 92 }
-            });
+            };
+            modelBuilder.Entity<Group>().HasData(groups);
 
             // Parse .ropf files for Parties and Polls
             var parties = new List<Party>();
             var polls = new List<Poll>();
+            
+            var assetsFolder = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.Parent.FullName, "frontend", "public", "assets");
 
-            var assetsFolder = Path.Combine(AppContext.BaseDirectory, "..", "frontend", "public", "assets");
             foreach (var country in modelBuilder.Entity<Country>().Metadata.GetSeedData())
             {
                 var countryCode = country["CountryCode"]?.ToString();
@@ -240,9 +330,11 @@ namespace backend.Data
                 var ropfFilePath = Path.Combine(assetsFolder, $"{countryCode}.ropf");
                 if (File.Exists(ropfFilePath))
                 {
-                    ParseRopfFile(ropfFilePath, countryCode, parties, polls);
+                    ParseRopfFile(ropfFilePath, countryCode, parties, polls, groups);
                 }
             }
+            
+            Console.WriteLine("Before ParseChesData");
             
             // Parse CHES data
             var chesFilePath = Path.Combine(assetsFolder, "CHES.txt");
@@ -250,18 +342,92 @@ namespace backend.Data
             {
                 ParseChesData(chesFilePath, parties);
             }
+            
+            Console.WriteLine("Before Seed Parties");
 
             // Seed Parties
-            modelBuilder.Entity<Party>().HasData(parties);
+            modelBuilder.Entity<Party>().HasData(parties.Select(p => new
+            {
+                p.Id,
+                p.StringId,
+                p.Acronym,
+                p.EnglishName,
+                LocalName = p.LocalName ?? new List<string>([""]),
+                p.CountryCode,
+                CountryCode1 = p.CountryCode,
+                p.CHES_EU,
+                p.CHES_Economy,
+                p.CHES_Progress,
+                p.CHES_Liberal,
+                p.Mp,
+                p.Role
+            }).ToArray<object>());
+            
+            Console.WriteLine("Before Seed Polls");
 
             // Seed Polls
-            modelBuilder.Entity<Poll>().HasData(polls);
-        }
+            modelBuilder.Entity<Poll>().HasData(polls.Select(p => new
+            {
+                p.Id,
+                p.Pollster,
+                Media = p.Media ?? new List<string>([""]),
+                p.StartDate,
+                p.FinishDate,
+                p.Type,
+                p.Sample,
+                p.Others,
+                p.Area
+            }).ToArray<object>());
+            
+            Console.WriteLine("Before Seed PollResults");
 
-        private void ParseRopfFile(string ropfFilePath, string countryCode, List<Party> parties, List<Poll> polls)
+            // Seed PollResults
+            var pollResults = polls
+                .SelectMany(p => p.Results, (poll, result) => new
+                {
+                    PollId = poll.Id,
+                    PartyId = result.Party.Id, // Assuming Result.Party is an actual Party object
+                    Value = result.Value
+                })
+                .ToArray();
+            modelBuilder.Entity<PollResult>().HasData(pollResults);
+            
+            Console.WriteLine("Before Seed PartyGroups");
+
+            // Seed PartyGroups
+            var partyGroups = parties
+                .SelectMany(p => p.Groups, (party, group) => new
+                {
+                    PartyId = party.Id,
+                    GroupId = group.Id
+                })
+                .ToArray();
+            modelBuilder.Entity("PartyGroups").HasData(partyGroups);
+            
+            Console.WriteLine("Before Seed PartySubParties");
+
+            // Seed PartySubParties
+            var partySubParties = parties
+                .Where(p => p.SubParties != null) // Ensure SubParties is not null
+                .SelectMany(p => p.SubParties, (parentParty, subParty) => new
+                {
+                    ParentPartyId = parentParty.Id,
+                    SubPartyId = subParty.Id
+                })
+                .ToArray();
+            modelBuilder.Entity("PartySubParties").HasData(partySubParties);
+            
+            Console.WriteLine("FINISHED");
+        }
+        
+        
+        
+        
+        
+
+        private void ParseRopfFile(string ropfFilePath, string countryCode, List<Party> parties, List<Poll> polls, List<Group> groups)
         {
             var lines = File.ReadAllLines(ropfFilePath);
-            var partyDictionary = new Dictionary<string, Party>();
 
             bool partiesStarted = false;
             foreach (var line in lines)
@@ -276,10 +442,10 @@ namespace backend.Data
                 }
                 else if (partiesStarted)
                 {
-                    parties.Add(ParsePartyLine(line, countryCode, parties)); // Collect party lines between two empty lines
+                    parties.Add(ParsePartyLine(line, countryCode, parties, groups)); // Collect party lines between two empty lines
                 }
             }
-
+            
             Poll currentPoll = null;
 
             foreach (var line in lines)
@@ -302,7 +468,7 @@ namespace backend.Data
             if (currentPoll != null) polls.Add(currentPoll);
         }
         
-        private Party ParsePartyLine(string line, string country, List<Party> existingParties)
+        private Party ParsePartyLine(string line, string country, List<Party> existingParties, List<Group> groups)
         {
             var stringId = line.Split(':')[0].Trim();
             var acronym = ExtractField(line, "•R:") ?? ExtractField(line, "•A:") ?? "Error";
@@ -341,7 +507,7 @@ namespace backend.Data
 
             var groupField = ExtractField(line, "•GROUP:");
             var groupObjects = !string.IsNullOrEmpty(groupField)
-                ? groupField.Split('/').Select(g => GetGroup(g.Trim())).ToList()
+                ? groupField.Split('/').Select(g => groups.SingleOrDefault(gr => gr.Acronym == g.Trim())).ToList()
                 : null;
 
             var uniqueGroups = new HashSet<Group>();
@@ -382,18 +548,13 @@ namespace backend.Data
                 Mp = mp,
                 Role = role
             };
-
+            
             return party;
-        }
-        
-        public Group GetGroup(string acronym)
-        {
-            return Groups.SingleOrDefault(g => g.Acronym == acronym);
         }
         
         private string? ExtractField(string line, string marker)
         {
-            var regex = new Regex($@"{marker}(.*?)(?=•|$)");
+            var regex = new Regex($@"{marker}(.*?)(?=•|$|\s+\S+?:)");
             var match = regex.Match(line);
             return match.Success ? match.Groups[1].Value.Trim() : null;
         }
@@ -480,7 +641,7 @@ namespace backend.Data
             }
         }
 
-        private List<List<double>> GetSubPartiesCHESData(List<Party> subParties)
+        private List<List<double>> GetSubPartiesCHESData(ICollection<Party> subParties)
         {
             var chesEU = new List<double>();
             var chesEconomy = new List<double>();
@@ -531,25 +692,31 @@ namespace backend.Data
                 Id = Guid.NewGuid(),
                 Pollster = basePoll?.Pollster ?? ExtractField(line, "•PF:") ?? "Unknown",
                 Media = basePoll?.Media.ToList() ?? new List<string>(),
-                StartDate = basePoll?.StartDate ?? DateTime.Parse(ExtractField(line, "•FS:")!),
-                FinishDate = basePoll?.FinishDate ?? DateTime.Parse(ExtractField(line, "•FE:")!),
+                StartDate = basePoll?.StartDate ?? DateTime.Parse(ExtractField(line, "•FS:") ?? ExtractField(line, "•FE:") ?? ExtractField(line, "•PD:")),
+                FinishDate = basePoll?.FinishDate ?? DateTime.Parse(ExtractField(line, "•FE:") ?? ExtractField(line, "•PD:")),
                 Type = basePoll?.Type ?? ExtractField(line, "•SC:") ?? "N",
                 Sample = basePoll?.Sample ?? ExtractNumberField(line, "•SS:") ?? null,
                 Results = ExtractResults(line, parties),
-                Others = ExtractNumberField(line, "•O") ?? 0,
+                Others = ExtractDoubleField(line, "•O:") ?? 0,
                 Area = ExtractField(line, "•A:") ?? string.Empty
             };
 
             // Add additional media if found in the current line
             AddMultipleFields(line, "•C:", poll.Media);
-
+            
             return poll;
         }
 
         private int? ExtractNumberField(string line, string marker)
         {
             var valueStr = ExtractField(line, marker);
-            return valueStr != null ? int.Parse(valueStr) : null;
+            return valueStr != null ? int.Parse(new string(valueStr.Where(char.IsDigit).ToArray())) : null;
+        }
+        
+        private double? ExtractDoubleField(string line, string marker)
+        {
+            var valueStr = ExtractField(line, marker);
+            return valueStr != null ? double.Parse(valueStr, CultureInfo.InvariantCulture) : null;
         }
 
         private void AddMultipleFields(string line, string marker, List<string> targetList)
@@ -575,7 +742,7 @@ namespace backend.Data
             foreach (Match match in matches)
             {
                 var acronym = match.Groups[1].Value.Trim();
-                var value = double.Parse(match.Groups[2].Value);
+                var value = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
                 totalSupport += value;
 
                 var party = parties.FirstOrDefault(p => p.StringId == acronym);
