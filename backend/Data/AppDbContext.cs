@@ -256,7 +256,7 @@ namespace backend.Data
                 .HasPrincipalKey(c => c.CountryCode)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            /*
+            
             
             // Initialize Countries
             modelBuilder.Entity<Country>().HasData(new[]
@@ -420,7 +420,7 @@ namespace backend.Data
             modelBuilder.Entity("PartySubParties").HasData(partySubParties);
             
             Console.WriteLine("FINISHED 2.0");
-            */
+            
         }
         
         
@@ -748,7 +748,7 @@ namespace backend.Data
                 var value = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
                 totalSupport += value;
 
-                var party = parties.FirstOrDefault(p => p.StringId == acronym);
+                var party = parties.FirstOrDefault(p => p.StringId == acronym && p.CountryCode == countryCode);
                 if (party != null)
                 {
                     tempResults.Add((party, value));

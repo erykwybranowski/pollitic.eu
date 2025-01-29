@@ -106,18 +106,20 @@ export class PollingGraphComponent implements OnInit {
       const pollMonth = poll.finishDate.toISOString().slice(0, 7); // Format: YYYY-MM
       poll.results.forEach((result) => {
         // Generate the key for the partySupport record
-        const partyKey = this.parties.find(p => p.id == result.partyId)!.acronym;
+        const partyKey = this.parties.find(p => p.id == result.partyId)?.acronym;
 
-        // Initialize nested structures if they don't exist
-        if (!partySupport[partyKey]) {
-          partySupport[partyKey] = {};
-        }
-        if (!partySupport[partyKey][pollMonth]) {
-          partySupport[partyKey][pollMonth] = [];
-        }
+        if (partyKey) {
+          // Initialize nested structures if they don't exist
+          if (!partySupport[partyKey]) {
+            partySupport[partyKey] = {};
+          }
+          if (!partySupport[partyKey][pollMonth]) {
+            partySupport[partyKey][pollMonth] = [];
+          }
 
-        // Add the value to the corresponding month
-        partySupport[partyKey][pollMonth].push(result.value);
+          // Add the value to the corresponding month
+          partySupport[partyKey][pollMonth].push(result.value);
+        }
       });
     });
 
@@ -156,8 +158,8 @@ export class PollingGraphComponent implements OnInit {
   private getPartyColor(parties: string[]): void {
     for (let party of parties) {
       let groups = new Set<Group>();
-      if (party.includes("/")) {
-        party.split("/").forEach((acronym) => {
+      if (party.includes("+")) {
+        party.split("+").forEach((acronym) => {
           let groupSet = this.parties.find((party) => party.acronym === acronym)?.groups;
           if (groupSet) {
             groupSet.forEach(group => {

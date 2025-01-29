@@ -126,10 +126,6 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
 
   getPartyColor(party: Party, previousPoll: boolean): string {
     if (party.groups && party.groups.size > 0) {
-      party.groups.forEach(g => {
-        console.log(g.acronym)
-        console.log(g.r)
-      })
       let colors: string[];
       if (previousPoll) {
         colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})

@@ -1,5 +1,5 @@
 <div class="party-list">
-  <h2>{{ countryName }}: Kompozycja Parlamentu TEST</h2>
+  <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
 
 <!--  Parliament composition-->
   <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>

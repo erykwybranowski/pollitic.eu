@@ -55,9 +55,6 @@ export class CountryComponent implements OnInit {
     this.partyService.getParties(this.countryCode).subscribe({
       next: (parties: Party[]) => {
         this.parties = parties;
-        for (let p of parties) {
-          console.log (p.acronym + " " + p.cheS_EU);
-        }
         this.loadPolls();
         this.determineGovernment();
       },

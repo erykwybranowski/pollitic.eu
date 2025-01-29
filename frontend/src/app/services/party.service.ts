@@ -18,13 +18,9 @@ export class PartyService {
   // Method to get countries
   getCountries(): Observable<Country[]> {
     if (environment.production) {
-      console.log("PRODUCTION ENVIRONMENT")
-      console.log("env name " + environment.environmentName)
       // Production: You will later implement this with HTTP calls
       return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
     } else {
-      console.log("DEVELOPMENT ENVIRONMENT")
-      console.log("env name " + environment.environmentName)
       // Development version: hardcoded countries list
       return of([
         {id: "1", countryCode: 'at', name: 'Austria'},
@@ -60,7 +56,6 @@ export class PartyService {
 
   // Method to get parties based on the country
   getParties(country: string): Observable<Party[]> {
-    console.log("get parties 2.0")
     if (environment.production) {
       return this.http.get<Party[]>(`${environment.apiUrl}/parties/${country}`).pipe(
         map(parties => parties.map(p => ({
@@ -513,12 +508,30 @@ export class PartyService {
 
   // Method to get polls based on the country code and list of parties
   getPolls(countryCode: string, parties: Party[]): Observable<Poll[]> {
-    const ropfFilePath = `${environment.localDataPath}${countryCode}.ropf`;
-
-    return this.readLocalFile(ropfFilePath, true).pipe(
-      map((lines: string[]) => this.extractPollsFromLines(lines, parties))
+    return this.http.get<Poll[]>(`${environment.apiUrl}/polls/${countryCode}`).pipe(
+      map(polls => polls.map(p => ({
+        id: p.id,
+        pollster: p.pollster,
+        media: p.media ?? [], // Ensure `media` is an array
+        startDate: new Date(p.startDate), // Convert to JavaScript `Date`
+        finishDate: new Date(p.finishDate), // Convert to JavaScript `Date`
+        type: p.type,
+        sample: p.sample ?? null, // Ensure `sample` is `null` if missing
+        results: p.results.map(r => ({
+          partyId: r.partyId,
+          value: r.value
+        })), // Ensure correct result structure
+        others: p.others,
+        area: p.area ?? undefined, // Ensure optional `area` property is handled
+      })))
     );
+    // const ropfFilePath = `${environment.localDataPath}${countryCode}.ropf`;
+    //
+    // return this.readLocalFile(ropfFilePath, true).pipe(
+    //   map((lines: string[]) => this.extractPollsFromLines(lines, parties))
+    // );
   }
+
 
   // Helper to parse polling data lines
   private extractPollsFromLines(lines: string[], parties: Party[]): Poll[] {
