@@ -55,10 +55,10 @@ export class ViewsGraphComponent implements OnChanges {
 
   createValueGraph(field: string, squaresArray: any[], connectorsArray: any[]): void {
     let chesValue = null;
-    if (field === 'CHES_Economy') chesValue = this.party.CHES_Economy;
-    else if (field === 'CHES_Liberal') chesValue = this.party.CHES_Liberal;
-    else if (field === 'CHES_Progress') chesValue = this.party.CHES_Progress;
-    else if (field === 'CHES_EU') chesValue = this.party.CHES_EU;
+    if (field === 'CHES_Economy') chesValue = this.party.cheS_Economy;
+    else if (field === 'CHES_Liberal') chesValue = this.party.cheS_Liberal;
+    else if (field === 'CHES_Progress') chesValue = this.party.cheS_Progress;
+    else if (field === 'CHES_EU') chesValue = this.party.cheS_EU;
 
     if (Array.isArray(chesValue)) {
       // If CHES value is a range
