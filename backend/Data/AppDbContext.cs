@@ -256,7 +256,7 @@ namespace backend.Data
                 .HasPrincipalKey(c => c.CountryCode)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            
+            /*
             
             // Initialize Countries
             modelBuilder.Entity<Country>().HasData(new[]
@@ -420,7 +420,7 @@ namespace backend.Data
             modelBuilder.Entity("PartySubParties").HasData(partySubParties);
             
             Console.WriteLine("FINISHED 2.0");
-            
+            */
         }
         
         
