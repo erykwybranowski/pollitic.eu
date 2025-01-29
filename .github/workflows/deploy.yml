@@ -20,6 +20,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/pollitic.eu
-            git pull origin main
+            sudo git pull origin main
             sudo docker-compose down
             sudo sh run.sh
