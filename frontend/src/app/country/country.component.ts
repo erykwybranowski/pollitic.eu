@@ -55,6 +55,9 @@ export class CountryComponent implements OnInit {
     this.partyService.getParties(this.countryCode).subscribe({
       next: (parties: Party[]) => {
         this.parties = parties;
+        for (let p of parties) {
+          console.log (p.acronym + " " + p.cheS_EU);
+        }
         this.loadPolls();
         this.determineGovernment();
       },
@@ -86,8 +89,8 @@ export class CountryComponent implements OnInit {
       let govGroupsNames = new Set<string>();
 
       govParties.forEach((p) => {
-        if (p.group) {
-          p.group.forEach((group) => {
+        if (p.groups) {
+          p.groups.forEach((group) => {
             if (!govGroupsNames.has(group.acronym)) {
               govGroups.add(group);
               govGroupsNames.add(group.acronym);
@@ -111,16 +114,16 @@ export class CountryComponent implements OnInit {
           .map((g) => g.acronym)
           .join(", "),
         englishName: "Government",
-        group: govGroups,
+        groups: govGroups,
         role: null,
         subParties: null,
-        countryCode: null,
+        countryCode: "null",
         mp: null,
         localName: null,
-        CHES_EU: CHESData[0],
-        CHES_Economy: CHESData[1],
-        CHES_Progress: CHESData[2],
-        CHES_Liberal: CHESData[3],
+        cheS_EU: CHESData[0],
+        cheS_Economy: CHESData[1],
+        cheS_Progress: CHESData[2],
+        cheS_Liberal: CHESData[3],
       };
     }
   }
@@ -143,7 +146,7 @@ export class CountryComponent implements OnInit {
       collectSubPartyIds(party);
     });
 
-    return partiesWithMPs.filter(party => !subPartyIds.has(party.id));
+    return partiesWithMPs.filter(party => !subPartyIds.has(party.id) && party.englishName != "Composite-party");
   }
 
   getPartiesForPolls(): Party[] {
@@ -168,7 +171,7 @@ export class CountryComponent implements OnInit {
       if (party.subParties && party.subParties.length > 0) {
         party.subParties.forEach(subParty => {
           subPartyIds.add(subParty.id);
-          collectSubPartyIds(subParty); // Recursively collect subparties
+          collectSubPartyIds(this.parties.find(p => p.id == subParty.id)!); // Recursively collect subparties
         });
       }
     };
@@ -177,10 +180,10 @@ export class CountryComponent implements OnInit {
       collectSubPartyIds(party);
     });
 
-    const filteredParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id));
+    const filteredParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id) && party.englishName != "Composite-party");
     let topLevelParties: Party[] = [];
     if (excluded) {
-      topLevelParties = filteredParties.sort((a, b) => ((b.CHES_Liberal != null ? 2 : 0) + (b.group != null && b.group.size > 0 ? 1 : 0)) - ((a.CHES_Liberal != null ? 2 : 0) + (a.group && a.group.size > 0 != null ? 1 : 0)))
+      topLevelParties = filteredParties.sort((a, b) => ((b.cheS_Liberal != null ? 2 : 0) + (b.groups != null && b.groups.size > 0 ? 1 : 0)) - ((a.cheS_Liberal != null ? 2 : 0) + (a.groups && a.groups.size > 0 != null ? 1 : 0)))
     } else {
       topLevelParties = filteredParties.sort((a, b) => (b.mp || 0) - (a.mp || 0));
     }
@@ -194,7 +197,7 @@ export class CountryComponent implements OnInit {
 
       // If the party has subparties, sort them by MP and recurse
       if (party.subParties && party.subParties.length > 0) {
-        const sortedSubParties = party.subParties.sort((a, b) => (b.mp || 0) - (a.mp || 0));
+        const sortedSubParties = party.subParties.map(sub => this.parties.find(p => p.id == sub.id)!).sort((a, b) => (b.mp || 0) - (a.mp || 0));
         sortedSubParties.forEach(subParty => collectParties(subParty, subLevel + 1));
       }
     };
@@ -205,9 +208,9 @@ export class CountryComponent implements OnInit {
   }
 
   getPartyColorGradient(party: Party): string {
-    if (party.group && party.group.size > 0) {
-      const colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-        .map(group => `rgb(${group.R}, ${group.G}, ${group.B}), rgb(${group.R}, ${group.G}, ${group.B})`);
+    if (party.groups && party.groups.size > 0) {
+      const colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})
+        .map(group => `rgb(${group.r}, ${group.g}, ${group.b}), rgb(${group.r}, ${group.g}, ${group.b})`);
 
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(${colors.join(', ')})`;
@@ -224,7 +227,7 @@ export class CountryComponent implements OnInit {
   }
 
   getPartyGroups(party: Party): string {
-    return party.group ? "Grupa: " + Array.from(party.group).sort((a,b) => {return a.id - b.id}).map(g => g.acronym).join(', ') : '-';
+    return party.groups ? "Grupa: " + Array.from(party.groups).sort((a, b) => {return a.id - b.id}).map(g => g.acronym).join(', ') : '-';
   }
 
   getRoles(party: Party): string {

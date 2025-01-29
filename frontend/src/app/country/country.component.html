@@ -13,7 +13,7 @@
           <h3>Rząd</h3>
           <p>{{ government.acronym }}</p>
           <p *ngIf="includeSupportParties">{{ government.stringId }}</p>
-          <div class="party-groups" *ngIf="government.group && government.group.size > 0">
+          <div class="party-groups" *ngIf="government.groups && government.groups.size > 0">
             <p>{{ getPartyGroups(government) }}</p>
           </div>
         </div>
@@ -56,7 +56,7 @@
         <div class="party-info">
           <h3>{{ party.acronym }}</h3>
           <p *ngIf="party.localName">{{ party.localName.join(', ') }}</p>
-          <div class="party-groups" *ngIf="party.group && party.group.size > 0">
+          <div class="party-groups" *ngIf="party.groups && party.groups.size > 0">
             <p>{{ getPartyGroups(party) }}</p>
           </div>
           <p>Liczba posłów: {{ party.mp || 0 }}</p>
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Views graph container now adjusted for mobile layout in CSS -->
-        <div class="views-graph-container" *ngIf="party.CHES_Liberal != null">
+        <div class="views-graph-container" *ngIf="party.cheS_Liberal != null">
           <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
         </div>
       </div>
@@ -89,14 +89,14 @@
         <div class="party-info">
           <h3>{{ party.acronym }}</h3>
           <p *ngIf="party.localName">{{ party.localName.join(', ') }}</p>
-          <div class="party-groups" *ngIf="party.group && party.group.size > 0">
+          <div class="party-groups" *ngIf="party.groups && party.groups.size > 0">
             <p>{{ getPartyGroups(party) }}</p>
           </div>
           <p>Liczba posłów: {{ party.mp || 0 }}</p>
         </div>
 
         <!-- Views graph container now adjusted for mobile layout in CSS -->
-        <div class="views-graph-container" *ngIf="party.CHES_Liberal != null">
+        <div class="views-graph-container" *ngIf="party.cheS_Liberal != null">
           <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
         </div>
       </div>

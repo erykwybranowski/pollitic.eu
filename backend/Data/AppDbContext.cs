@@ -203,7 +203,7 @@ namespace backend.Data
 
                 // Configure the relationship to Party
                 entity.HasOne(pr => pr.Party)
-                    .WithMany() // No navigation property on Party
+                    .WithMany(party => party.Results) // No navigation property on Party
                     .HasForeignKey(pr => pr.PartyId)
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
@@ -250,12 +250,14 @@ namespace backend.Data
                     });
             
             modelBuilder.Entity<Country>()
-                .HasMany<Party>()
-                .WithOne()
+                .HasMany<Party>(c => c.Parties)
+                .WithOne(p => p.Country)
                 .HasForeignKey(p => p.CountryCode)
                 .HasPrincipalKey(c => c.CountryCode)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            /*
+            
             // Initialize Countries
             modelBuilder.Entity<Country>().HasData(new[]
             {
@@ -417,7 +419,8 @@ namespace backend.Data
                 .ToArray();
             modelBuilder.Entity("PartySubParties").HasData(partySubParties);
             
-            Console.WriteLine("FINISHED");
+            Console.WriteLine("FINISHED 2.0");
+            */
         }
         
         
@@ -454,12 +457,12 @@ namespace backend.Data
                 {
                     // Create a new poll
                     if (currentPoll != null) polls.Add(currentPoll);
-                    currentPoll = CreatePollFromLine(line, parties);
+                    currentPoll = CreatePollFromLine(line, parties, countryCode);
                 }
                 else if (line.StartsWith("&") && currentPoll != null)
                 {
                     // Create a new poll based on the previous one
-                    var newPoll = CreatePollFromLine(line, parties, currentPoll);
+                    var newPoll = CreatePollFromLine(line, parties, countryCode, currentPoll);
                     polls.Add(newPoll);
                 }
             }
@@ -476,7 +479,7 @@ namespace backend.Data
 
             var localNames = ExtractLocalNames(line); // Updated to handle multiple local names
             var mp = int.TryParse(ExtractField(line, "•MP:"), out var parsedMp) ? (int?)parsedMp : null;
-            var subParties = ExtractSubParties(line, existingParties);
+            var subParties = ExtractSubParties(line, existingParties, country);
 
             var role = new HashSet<string>();
             if (line.Contains("•GOV")) role.Add("Rząd");
@@ -579,13 +582,13 @@ namespace backend.Data
             return localNames.Count > 0 ? localNames : null;
         }
         
-        private List<Party>? ExtractSubParties(string line, List<Party> existingParties)
+        private List<Party>? ExtractSubParties(string line, List<Party> existingParties, string country)
         {
             var subPartiesString = ExtractField(line, "•SUB:");
             if (subPartiesString == null) return null;
 
             var subPartyIds = subPartiesString.Split(',').Select(id => id.Trim()).ToList();
-            return existingParties.Where(party => subPartyIds.Contains(party.StringId)).ToList();
+            return existingParties.Where(party => subPartyIds.Contains(party.StringId) && party.CountryCode == country).ToList();
         }
         
         private void ApplyRoleToSubParties(IEnumerable<Party> subParties, HashSet<string> role)
@@ -685,7 +688,7 @@ namespace backend.Data
             };
         }
         
-        private Poll CreatePollFromLine(string line, List<Party> parties, Poll basePoll = null)
+        private Poll CreatePollFromLine(string line, List<Party> parties, string countryCode, Poll basePoll = null)
         {
             var poll = new Poll
             {
@@ -696,7 +699,7 @@ namespace backend.Data
                 FinishDate = basePoll?.FinishDate ?? DateTime.Parse(ExtractField(line, "•FE:") ?? ExtractField(line, "•PD:")),
                 Type = basePoll?.Type ?? ExtractField(line, "•SC:") ?? "N",
                 Sample = basePoll?.Sample ?? ExtractNumberField(line, "•SS:") ?? null,
-                Results = ExtractResults(line, parties),
+                Results = ExtractResults(line, parties, countryCode),
                 Others = ExtractDoubleField(line, "•O:") ?? 0,
                 Area = ExtractField(line, "•A:") ?? string.Empty
             };
@@ -730,7 +733,7 @@ namespace backend.Data
             }
         }
 
-        List<PollResult> ExtractResults(string line, List<Party> parties)
+        List<PollResult> ExtractResults(string line, List<Party> parties, string countryCode)
         {
             var results = new List<PollResult>();
             var regex = new Regex(@"\s([\p{L}\w\-+]+):\s(\d+(\.\d+)?)", RegexOptions.Compiled);
@@ -754,14 +757,15 @@ namespace backend.Data
                 {
                     var subAcronyms = acronym.Split("+").Select(sub => sub.Trim());
                     var allParties = subAcronyms
-                        .Select(sub => parties.FirstOrDefault(p => p.StringId == sub))
+                        .Select(sub => parties.FirstOrDefault(p => p.StringId == sub && p.CountryCode == countryCode))
                         .Where(p => p != null)
                         .ToList();
 
                     if (allParties.Any())
                     {
-                        var newParty = CreateCompositeParty(allParties);
+                        var newParty = CreateCompositeParty(allParties, acronym);
                         tempResults.Add((newParty, value));
+                        parties.Add(newParty);
                     }
                 }
             }
@@ -779,7 +783,7 @@ namespace backend.Data
             return results;
         }
 
-        Party CreateCompositeParty(List<Party> subParties)
+        Party CreateCompositeParty(List<Party> subParties, string acronym)
         {
             var groups = subParties.SelectMany(p => p.Groups).ToHashSet();
             var roles = subParties.SelectMany(p => p.Role).ToHashSet();
@@ -789,10 +793,10 @@ namespace backend.Data
             return new Party
             {
                 Id = Guid.NewGuid(),
-                Acronym = string.Join("/", subParties.Select(p => p.Acronym)),
-                StringId = string.Join("/", subParties.Select(p => p.Acronym)),
-                EnglishName = string.Join("/", subParties.Select(p => p.Acronym)),
-                LocalName = null,
+                Acronym = acronym,
+                StringId = acronym,
+                EnglishName = "Composite-party",
+                LocalName = [acronym],
                 Groups = groups,
                 Role = roles,
                 SubParties = subParties,
@@ -800,7 +804,8 @@ namespace backend.Data
                 CHES_EU = chesData[0],
                 CHES_Economy = chesData[1],
                 CHES_Progress = chesData[2],
-                CHES_Liberal = chesData[3]
+                CHES_Liberal = chesData[3],
+                Mp = subParties.Sum(p => p.Mp ?? 0)
             };
         }
     }

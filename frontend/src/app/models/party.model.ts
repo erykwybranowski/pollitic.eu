@@ -5,14 +5,14 @@ export interface Party {
   stringId: string;
   acronym: string;
   englishName: string;
-  countryCode: string | null;
+  countryCode: string;
   localName: string[] | null;
-  CHES_EU: number | number[] | null;
-  CHES_Economy: number | number[] | null;
-  CHES_Progress: number | number[] | null;
-  CHES_Liberal: number | number[] | null;
+  cheS_EU: number | number[] | null;
+  cheS_Economy: number | number[] | null;
+  cheS_Progress: number | number[] | null;
+  cheS_Liberal: number | number[] | null;
   subParties: Party[] | null;
-  group: Set<Group> | null;
+  groups: Set<Group> | null;
   mp: number | null;
   role: Set<string> | null;
 }

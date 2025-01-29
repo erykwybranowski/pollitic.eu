@@ -17,5 +17,6 @@
         public ICollection<Group> Groups { get; set; }
         public int? Mp { get; set; }
         public ICollection<string> Role { get; set; }
+        public List<PollResult> Results { get; set; }
     }
 }

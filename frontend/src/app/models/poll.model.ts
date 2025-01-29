@@ -1,5 +1,3 @@
-import {Party} from "./party.model";
-
 export interface Poll {
   id: string;
   pollster: string;
@@ -8,7 +6,7 @@ export interface Poll {
   finishDate: Date;
   type: string;
   sample: number | null;
-  results: {party: Party, value: number}[];
+  results: {partyId: string, value: number}[];
   others: number;
   area?: string;
 }

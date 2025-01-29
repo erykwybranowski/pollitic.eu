@@ -73,13 +73,13 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   processData() {
     if (this.supportData && this.supportData.length > 0) {
       this.sortedParties = this.supportData[0].results.map(result => {
-        if (this.supportData.length === 2 && this.supportData[1].results.some(oldPoll => oldPoll.party.acronym == result.party.acronym)) {
-          let previousSupport = this.supportData[1].results.find(oldPoll => oldPoll.party.acronym == result.party.acronym)!.value;
+        if (this.supportData.length === 2 && this.supportData[1].results.some(oldPoll => oldPoll.partyId == result.partyId)) {
+          let previousSupport = this.supportData[1].results.find(oldPoll => oldPoll.partyId == result.partyId)!.value;
           this.maxNumber = Math.max(this.maxNumber, result.value, previousSupport);
-          return { ...result.party, support: result.value, previousSupport: previousSupport, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
+          return { ...this.parties.find(p => p.id == result.partyId)!, support: result.value, previousSupport: previousSupport, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
         }
         this.maxNumber = Math.max(this.maxNumber, result.value);
-        return { ...result.party, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
+        return { ...this.parties.find(p => p.id == result.partyId)!, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
       });
     } else {
       // Use MP numbers for visualization
@@ -91,23 +91,23 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
 
     // Sorting mechanism
     this.sortedParties = this.sortedParties
-      .filter(p => p.CHES_Economy !== null && p.CHES_Progress !== null && p.CHES_Liberal !== null && p.CHES_EU !== null)
+      .filter(p => p.cheS_Economy !== null && p.cheS_Progress !== null && p.cheS_Liberal !== null && p.cheS_EU !== null)
       .sort((a, b) => this.calculateChesScore(a) - this.calculateChesScore(b))
-      .concat(this.sortedParties.filter(p => p.CHES_Economy === null || p.CHES_Progress === null || p.CHES_Liberal === null || p.CHES_EU === null)
+      .concat(this.sortedParties.filter(p => p.cheS_Economy === null || p.cheS_Progress === null || p.cheS_Liberal === null || p.cheS_EU === null)
         .sort((a, b) => this.supportData && this.supportData.length > 0 ? (b.support ?? 0) - (a.support ?? 0) : b.mp! - a.mp!));
 
     this.sortedParties[0].leftIcons = true;
     this.sortedParties[this.sortedParties.length-1].rightIcons = true;
 
     // Filter parties with CHES_EU
-    this.chesEuParties = this.sortedParties.filter(p => p.CHES_EU !== null);
+    this.chesEuParties = this.sortedParties.filter(p => p.cheS_EU !== null);
   }
 
   calculateChesScore(party: Party): number {
-    const economy = Array.isArray(party.CHES_Economy) ? (Number(party.CHES_Economy[0]) + Number(party.CHES_Economy[1])) / 2 : Number(party.CHES_Economy);
-    const progress = Array.isArray(party.CHES_Progress) ? (Number(party.CHES_Progress[0]) + Number(party.CHES_Progress[1])) / 2 : Number(party.CHES_Progress);
-    const liberal = Array.isArray(party.CHES_Liberal) ? (Number(party.CHES_Liberal[0]) + Number(party.CHES_Liberal[1])) / 2 : Number(party.CHES_Liberal);
-    const eu = Array.isArray(party.CHES_EU) ? (Number(party.CHES_EU[0]) + Number(party.CHES_EU[1])) / 2 : Number(party.CHES_EU);
+    const economy = Array.isArray(party.cheS_Economy) ? (Number(party.cheS_Economy[0]) + Number(party.cheS_Economy[1])) / 2 : Number(party.cheS_Economy);
+    const progress = Array.isArray(party.cheS_Progress) ? (Number(party.cheS_Progress[0]) + Number(party.cheS_Progress[1])) / 2 : Number(party.cheS_Progress);
+    const liberal = Array.isArray(party.cheS_Liberal) ? (Number(party.cheS_Liberal[0]) + Number(party.cheS_Liberal[1])) / 2 : Number(party.cheS_Liberal);
+    const eu = Array.isArray(party.cheS_EU) ? (Number(party.cheS_EU[0]) + Number(party.cheS_EU[1])) / 2 : Number(party.cheS_EU);
     return (economy + progress + liberal) * (4 + eu);
   }
 
@@ -125,14 +125,18 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   }
 
   getPartyColor(party: Party, previousPoll: boolean): string {
-    if (party.group && party.group.size > 0) {
+    if (party.groups && party.groups.size > 0) {
+      party.groups.forEach(g => {
+        console.log(g.acronym)
+        console.log(g.r)
+      })
       let colors: string[];
       if (previousPoll) {
-        colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-          .map(group => `rgba(${group.R}, ${group.G}, ${group.B}, 0.3), rgb(${group.R}, ${group.G}, ${group.B}, 0.3)`);
+        colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})
+          .map(group => `rgba(${group.r}, ${group.g}, ${group.b}, 0.3), rgb(${group.r}, ${group.g}, ${group.b}, 0.3)`);
       } else {
-        colors = Array.from(party.group).sort((a,b) => {return a.id - b.id})
-          .map(group => `rgb(${group.R}, ${group.G}, ${group.B}), rgb(${group.R}, ${group.G}, ${group.B})`);
+        colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})
+          .map(group => `rgb(${group.r}, ${group.g}, ${group.b}), rgb(${group.r}, ${group.g}, ${group.b})`);
       }
       // If there are multiple colors, return a linear gradient
       return `linear-gradient(to right, ${colors.join(', ')})`;
@@ -147,8 +151,8 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
 
 
   getPartyGroupAcronyms(party: Party): string {
-    if (party.group && party.group.size > 0) {
-      return Array.from(party.group).map(group => group.acronym).join('/');
+    if (party.groups && party.groups.size > 0) {
+      return Array.from(party.groups).map(group => group.acronym).join('/');
     }
     return '-';
   }

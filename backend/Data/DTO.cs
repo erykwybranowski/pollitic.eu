@@ -10,19 +10,19 @@ namespace backend.Data
         public string EnglishName { get; set; }
         public string CountryCode { get; set; }
         public List<string> LocalName { get; set; }
-        public List<double?> CHES_EU { get; set; }
-        public List<double?> CHES_Economy { get; set; }
-        public List<double?> CHES_Progress { get; set; }
-        public List<double?> CHES_Liberal { get; set; }
-        public List<int> SubPartyIds { get; set; }
-        public List<int> GroupIds { get; set; }
+        public List<double>? CHES_EU { get; set; }
+        public List<double>? CHES_Economy { get; set; }
+        public List<double>? CHES_Progress { get; set; }
+        public List<double>? CHES_Liberal { get; set; }
+        public List<PartyDTO> SubParties  { get; set; }
+        public List<GroupDTO> Groups { get; set; }
         public int? Mp { get; set; }
-        public List<string> Role { get; set; }
+        public ICollection<string> Role { get; set; }
     }
 
     public class GroupDTO
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Acronym { get; set; }
         public string Name { get; set; }
         public int R { get; set; }
@@ -48,5 +48,11 @@ namespace backend.Data
     {
         public Guid PartyId { get; set; }
         public double Value { get; set; }
+    }
+
+    public class CountryDTO
+    {
+        public string CountryCode { get; set; }
+        public string Name { get; set; }
     }
 }

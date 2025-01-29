@@ -43,8 +43,8 @@ export class PollingGraphComponent implements OnInit {
     const sortedParties = Object.keys(partySupportOverTime)
       .filter((party) => partySupportOverTime[party].some((entry) => entry.value > 0)) // Exclude parties with no non-zero values
       .sort((a, b) => {
-        const groupCountA = this.getPartyByAcronym(a)?.group?.size || 0;
-        const groupCountB = this.getPartyByAcronym(b)?.group?.size || 0;
+        const groupCountA = this.getPartyByAcronym(a)?.groups?.size || 0;
+        const groupCountB = this.getPartyByAcronym(b)?.groups?.size || 0;
         return groupCountA - groupCountB; // Sort descending by group size
       });
 
@@ -106,7 +106,7 @@ export class PollingGraphComponent implements OnInit {
       const pollMonth = poll.finishDate.toISOString().slice(0, 7); // Format: YYYY-MM
       poll.results.forEach((result) => {
         // Generate the key for the partySupport record
-        const partyKey = result.party.acronym;
+        const partyKey = this.parties.find(p => p.id == result.partyId)!.acronym;
 
         // Initialize nested structures if they don't exist
         if (!partySupport[partyKey]) {
@@ -158,7 +158,7 @@ export class PollingGraphComponent implements OnInit {
       let groups = new Set<Group>();
       if (party.includes("/")) {
         party.split("/").forEach((acronym) => {
-          let groupSet = this.parties.find((party) => party.acronym === acronym)?.group;
+          let groupSet = this.parties.find((party) => party.acronym === acronym)?.groups;
           if (groupSet) {
             groupSet.forEach(group => {
               if (!groups.has(group)) groups.add(group);
@@ -166,7 +166,7 @@ export class PollingGraphComponent implements OnInit {
           }
         });
       } else {
-        let groupSet = this.parties.find((p) => p.acronym === party)?.group;
+        let groupSet = this.parties.find((p) => p.acronym === party)?.groups;
         if (groupSet) {
           groupSet.forEach(group => {
             if (!groups.has(group)) groups.add(group);
@@ -184,9 +184,9 @@ export class PollingGraphComponent implements OnInit {
             return currentUsage < leastUsage ? currentGroup : leastUsedGroup;
           });
         }
-        const R = selectedGroup.R;
-        const G = selectedGroup.G;
-        const B = selectedGroup.B;
+        const R = selectedGroup.r;
+        const G = selectedGroup.g;
+        const B = selectedGroup.b;
         this.colorsUsed[selectedGroup.acronym] = this.colorsUsed[selectedGroup.acronym] ? this.colorsUsed[selectedGroup.acronym] + 1 : 1;
         this.partyColors[party] = `rgb(${R}, ${G}, ${B})`;
       } else {
