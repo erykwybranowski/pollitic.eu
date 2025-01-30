@@ -28,7 +28,7 @@ namespace backend
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(Environment.GetEnvironmentVariable("DefaultConnection"),
                     new MySqlServerVersion(new Version(8, 0, 25)),
-                    opt => opt.CommandTimeout(600)));
+                    opt => opt.CommandTimeout(1200)));
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
