@@ -128,7 +128,7 @@ export class CountryComponent implements OnInit {
   getPartiesForGraph(): Party[] {
     const subPartyIds = new Set<string>();
 
-    const partiesWithMPs = this.parties.filter(p => p.mp != null);
+    const partiesWithMPs = this.parties.filter(p => p.mp != null  && p.englishName != "Composite-party");
 
     const collectSubPartyIds = (party: Party) => {
       if (party.subParties && party.subParties.length > 0) {
@@ -143,7 +143,7 @@ export class CountryComponent implements OnInit {
       collectSubPartyIds(party);
     });
 
-    return partiesWithMPs.filter(party => !subPartyIds.has(party.id) && party.englishName != "Composite-party");
+    return partiesWithMPs.filter(party => !subPartyIds.has(party.id));
   }
 
   getPartiesForPolls(): Party[] {
@@ -159,9 +159,9 @@ export class CountryComponent implements OnInit {
 
     let partiesWithMPs: Party[] = [];
     if (excluded) {
-      partiesWithMPs = this.parties.filter(p => p.mp == null || p.mp == 0);
+      partiesWithMPs = this.parties.filter(p => p.mp == null || p.mp == 0  && p.englishName != "Composite-party");
     } else {
-      partiesWithMPs = this.parties.filter(p => p.mp != null);
+      partiesWithMPs = this.parties.filter(p => p.mp != null && p.englishName != "Composite-party");
     }
 
     const collectSubPartyIds = (party: Party) => {
@@ -177,7 +177,7 @@ export class CountryComponent implements OnInit {
       collectSubPartyIds(party);
     });
 
-    const filteredParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id) && party.englishName != "Composite-party");
+    const filteredParties = partiesWithMPs.filter(party => !subPartyIds.has(party.id));
     let topLevelParties: Party[] = [];
     if (excluded) {
       topLevelParties = filteredParties.sort((a, b) => ((b.cheS_Liberal != null ? 2 : 0) + (b.groups != null && b.groups.size > 0 ? 1 : 0)) - ((a.cheS_Liberal != null ? 2 : 0) + (a.groups && a.groups.size > 0 != null ? 1 : 0)))
