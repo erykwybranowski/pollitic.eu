@@ -16,6 +16,7 @@ namespace backend.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Poll> Polls { get; set; }
+        public DbSet<LatestPoll> LatestPolls { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -213,6 +214,37 @@ namespace backend.Data
                     .HasColumnType("double");
 
                 entity.ToTable("PollResults");
+            });
+            
+            // LatestPoll Configuration
+            modelBuilder.Entity<LatestPoll>(entity =>
+            {
+                // Use CountryCode as primary key (one entry per country)
+                entity.HasKey(e => e.CountryCode);
+
+                entity.Property(e => e.CountryCode)
+                    .IsRequired()
+                    .HasColumnType("varchar(10)");
+
+                // PollId is required
+                entity.Property(e => e.PollId)
+                    .IsRequired();
+
+                // Configure relationships:
+                // Each LatestPoll has one Poll. (Assuming Poll.Id is a Guid.)
+                entity.HasOne(e => e.Poll)
+                    .WithMany()  // or .WithOne() if Poll has a navigation property
+                    .HasForeignKey(e => e.PollId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Each LatestPoll relates to one Country.
+                entity.HasOne(e => e.Country)
+                    .WithMany()  // or .WithOne() if Country has a navigation property
+                    .HasForeignKey(e => e.CountryCode)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Optionally specify the table name:
+                entity.ToTable("LatestPolls");
             });
 
             // Relationships

@@ -109,6 +109,18 @@
       transform: scale(0.47); /* Fixed scale */
       margin-bottom: 0; /* Ensure no extra space below graph */
     }
+
+    .support-graph-container {
+      position: relative;
+    }
+    .support-graph-container .arrows {
+      position: absolute;
+      top: 60px; /* Arrows appear 60px lower over the graph */
+      left: 0;
+      right: 0;
+      margin: 0;
+      z-index: 10;
+    }
   }
   .support-graph-container {
     display: flex;
@@ -197,5 +209,18 @@
 
 .toggle-container input[type="checkbox"] {
   margin-right: 0.5rem;
+}
+
+.poll-header {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center header content */
+  margin-bottom: 10px;
+}
+.poll-header .country-flag {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  margin-right: 10px;
 }
 

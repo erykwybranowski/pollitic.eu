@@ -124,6 +124,7 @@ namespace backend.Controllers
         {
             return await _context.Polls
                 .Include(p => p.Results)
+                .OrderByDescending(p => p.FinishDate)
                 .Select(p => new PollDTO
                 {
                     Id = p.Id,
@@ -151,6 +152,7 @@ namespace backend.Controllers
             return await _context.Polls
                 .Where(p => p.Results.Any(r => r.Party.CountryCode == countryCode))
                 .Include(p => p.Results)
+                .OrderByDescending(p => p.FinishDate)
                 .Select(p => new PollDTO
                 {
                     Id = p.Id,
@@ -186,6 +188,39 @@ namespace backend.Controllers
                     B = g.B
                 })
                 .ToListAsync();
+        }
+        
+        // GET: api/public/newest-polls-per-country
+        [HttpGet("newest-polls-per-country")]
+        public async Task<ActionResult<IEnumerable<NewestPollsDTO>>> GetNewestPollPerCountry()
+        {
+            var latestPolls = await _context.LatestPolls
+                .Include(lp => lp.Poll)
+                .ThenInclude(p => p.Results)
+                .ToListAsync();
+
+            var result = latestPolls.Select(lp => new NewestPollsDTO
+                {
+                    Id = lp.Poll.Id,
+                    Pollster = lp.Poll.Pollster,
+                    Media = lp.Poll.Media,
+                    StartDate = lp.Poll.StartDate,
+                    FinishDate = lp.Poll.FinishDate,
+                    Type = lp.Poll.Type,
+                    Sample = lp.Poll.Sample,
+                    Others = lp.Poll.Others,
+                    Area = lp.Poll.Area,
+                    CountryCode = lp.CountryCode,
+                    Results = lp.Poll.Results.Select(r => new PollResultDTO
+                    {
+                        PartyId = r.PartyId,
+                        Value = r.Value
+                    }).ToList()
+                })
+                .OrderByDescending(dto => dto.FinishDate)
+                .ToList();
+
+            return result;
         }
     }
 }

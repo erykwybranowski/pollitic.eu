@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, of, switchMap} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Group} from "../models/group.model";
-import {Poll} from "../models/poll.model";
+import {NewestPoll, Poll} from "../models/poll.model";
 
 @Injectable({
   providedIn: 'root'
@@ -68,7 +68,8 @@ export class PartyService {
           cheS_Liberal: Array.isArray(p.cheS_Liberal) && p.cheS_Liberal.length === 1 ? p.cheS_Liberal[0] : p.cheS_Liberal ?? null,
         })))
       );
-    } else {
+    } else
+    {
       const ropfFilePath = `${environment.localDataPath}${country}.ropf`;
 
       return this.readLocalFile(ropfFilePath).pipe(
@@ -93,6 +94,45 @@ export class PartyService {
         })
       );
     }
+  }
+
+  getNewestPollsPerCountry(): Observable<NewestPoll[]> {
+    // if (environment.production) {
+      return this.http.get<NewestPoll[]>(`${environment.apiUrl}/newest-polls-per-country`).pipe(
+        map(polls => polls.map(p => ({
+          id: p.id,
+          pollster: p.pollster,
+          media: p.media ?? [], // Ensure `media` is an array
+          startDate: new Date(p.startDate), // Convert to JavaScript `Date`
+          finishDate: new Date(p.finishDate), // Convert to JavaScript `Date`
+          type: p.type,
+          sample: p.sample ?? null, // Ensure `sample` is `null` if missing
+          results: p.results.map(r => ({
+            partyId: r.partyId,
+            value: r.value
+          })), // Ensure correct result structure
+          others: p.others,
+          area: p.area ?? undefined, // Ensure optional `area` property is handled
+          countryCode: p.countryCode
+        })))
+      );
+    // }
+  }
+
+  getAllParties(): Observable<Party[]> {
+    // if (environment.production) {
+    return this.http.get<Party[]>(`${environment.apiUrl}/parties`).pipe(
+      map(parties => parties.map(p => ({
+        ...p,
+        role: new Set(p.role ?? []), // Convert role to Set<string>
+        groups: new Set(p.groups ?? []), // Convert groups to Set<Group>
+        cheS_EU: Array.isArray(p.cheS_EU) && p.cheS_EU.length === 1 ? p.cheS_EU[0] : p.cheS_EU ?? null,
+        cheS_Economy: Array.isArray(p.cheS_Economy) && p.cheS_Economy.length === 1 ? p.cheS_Economy[0] : p.cheS_Economy ?? null,
+        cheS_Progress: Array.isArray(p.cheS_Progress) && p.cheS_Progress.length === 1 ? p.cheS_Progress[0] : p.cheS_Progress ?? null,
+        cheS_Liberal: Array.isArray(p.cheS_Liberal) && p.cheS_Liberal.length === 1 ? p.cheS_Liberal[0] : p.cheS_Liberal ?? null,
+      })))
+    );
+    // }
   }
 
 

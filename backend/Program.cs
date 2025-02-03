@@ -2,6 +2,7 @@ using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using backend.Services;
 
 namespace backend
 {
@@ -45,6 +46,9 @@ namespace backend
                         .AllowAnyMethod()
                         .AllowAnyHeader());
             });
+            
+            builder.Services.AddHttpClient();
+            builder.Services.AddHostedService<PollUpdateService>();
 
             var app = builder.Build();
             
@@ -72,7 +76,13 @@ namespace backend
             app.UseCors("AllowAll"); // Use CORS policy
             app.UseAuthorization();
             app.MapControllers();
-            Console.WriteLine("Application started.");
+            Console.WriteLine("Applying migrations");
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();
+            }
+            Console.WriteLine("App started");
             app.Run();
         }
     }

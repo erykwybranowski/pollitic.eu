@@ -1,9 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { Poll } from '../models/poll.model';
 import { Party } from '../models/party.model';
 import { Chart, registerables } from 'chart.js';
-import { NgZone } from '@angular/core';
-import {Group} from "../models/group.model";
+import { Group } from "../models/group.model";
 
 @Component({
   selector: 'app-polling-graph',
@@ -15,6 +14,10 @@ export class PollingGraphComponent implements OnInit {
   @Input() countryCode: string = '';
   @Input() parties: Party[] = [];
   @Input() polls: Poll[] = [];
+
+  // Get the canvas element using a template reference variable
+  @ViewChild('pollingGraphCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+
   chart: Chart | null = null;
   colorsUsed: Record<string, number> = {};
   partyColors: Record<string, string> = {};
@@ -32,8 +35,8 @@ export class PollingGraphComponent implements OnInit {
       this.chart.destroy();
     }
 
-    // Dynamically adjust canvas height
-    const canvasElement = document.getElementById('pollingGraph') as HTMLCanvasElement;
+    // Get the canvas element from the template
+    const canvasElement = this.canvasRef.nativeElement;
     if (canvasElement) {
       const screenWidth = window.innerWidth;
       canvasElement.height = Math.max(500, Math.min(screenWidth / 2, 500)); // Adjust these values as needed
@@ -66,8 +69,9 @@ export class PollingGraphComponent implements OnInit {
 
     const labels = this.generateMonthLabels();
 
+    // Run the chart creation outside Angular's zone
     this.ngZone.runOutsideAngular(() => {
-      this.chart = new Chart('pollingGraph', {
+      this.chart = new Chart(canvasElement, {  // Pass the canvas element directly
         type: 'line',
         data: {
           labels,
@@ -107,7 +111,6 @@ export class PollingGraphComponent implements OnInit {
       poll.results.forEach((result) => {
         // Generate the key for the partySupport record
         const partyKey = this.parties.find(p => p.id == result.partyId)?.acronym;
-
         if (partyKey) {
           // Initialize nested structures if they don't exist
           if (!partySupport[partyKey]) {
@@ -154,7 +157,6 @@ export class PollingGraphComponent implements OnInit {
     return Math.round(rawAverage * 10) / 10;
   }
 
-
   private getPartyColor(parties: string[]): void {
     for (let party of parties) {
       let groups = new Set<Group>();
@@ -164,7 +166,7 @@ export class PollingGraphComponent implements OnInit {
           if (groupSet) {
             groupSet.forEach(group => {
               if (!groups.has(group)) groups.add(group);
-            })
+            });
           }
         });
       } else {
@@ -172,17 +174,16 @@ export class PollingGraphComponent implements OnInit {
         if (groupSet) {
           groupSet.forEach(group => {
             if (!groups.has(group)) groups.add(group);
-          })
+          });
         }
       }
 
       if (groups && groups.size > 0) {
         let selectedGroup: Group = groups.values().next().value;
         if (groups.size > 1) {
-          selectedGroup = Array.from(groups).reduce((leastUsedGroup : Group, currentGroup : Group) => {
+          selectedGroup = Array.from(groups).reduce((leastUsedGroup: Group, currentGroup: Group) => {
             const currentUsage = this.colorsUsed[currentGroup.acronym] || 0;
             const leastUsage = leastUsedGroup ? this.colorsUsed[leastUsedGroup.acronym] || 0 : Infinity;
-
             return currentUsage < leastUsage ? currentGroup : leastUsedGroup;
           });
         }
@@ -200,5 +201,4 @@ export class PollingGraphComponent implements OnInit {
   private getPartyByAcronym(acronym: string): Party | undefined {
     return this.parties.find((party) => party.acronym === acronym);
   }
-
 }

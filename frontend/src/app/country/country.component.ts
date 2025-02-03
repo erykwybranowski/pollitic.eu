@@ -9,6 +9,7 @@ import {PollingGraphComponent} from "../polling-graph/polling-graph.component";
 import {Group} from "../models/group.model";
 import {FormsModule} from "@angular/forms";
 import {Poll} from "../models/poll.model";
+import {environment} from "../../environments/environment";
 
 @Component({
   selector: 'app-country',
@@ -71,6 +72,7 @@ export class CountryComponent implements OnInit {
     this.partyService.getPolls(this.countryCode, this.parties).subscribe((polls) => {
       this.polls = polls;
       console.log("Polls loading complete")
+
     });
   }
 
@@ -150,7 +152,10 @@ export class CountryComponent implements OnInit {
     return this.parties;
   }
 
-  getPolls(): Poll[] {
+  getPolls(area?: string): Poll[] {
+    if (area) {
+      return this.polls.filter(p => p.area == area);
+    }
     return this.polls;
   }
 
@@ -273,7 +278,7 @@ export class CountryComponent implements OnInit {
     let currentPoll = this.polls[number];
     let previousPoll: Poll | null = null;
     for (let i = number + 1; i < this.polls.length; i++) {
-      if (this.polls[i].pollster == currentPoll.pollster) {
+      if (this.polls[i].pollster == currentPoll.pollster && this.polls[i].area == currentPoll.area) {
         previousPoll = this.polls[i];
         break;
       }
@@ -298,5 +303,9 @@ export class CountryComponent implements OnInit {
     if (this.currentPollIndex < this.polls.length - 1) {
       this.currentPollIndex++;
     }
+  }
+
+  getFlagPath(countryCode: string): string {
+    return `${environment.localDataPath}flags/${countryCode.toLowerCase()}.png`;
   }
 }

@@ -10,3 +10,16 @@ export interface Poll {
   others: number;
   area?: string;
 }
+export interface NewestPoll {
+  id: string;
+  pollster: string;
+  media: string[];
+  startDate: Date;
+  finishDate: Date;
+  type: string;
+  sample: number | null;
+  results: {partyId: string, value: number}[];
+  others: number;
+  area?: string;
+  countryCode: string;
+}

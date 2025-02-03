@@ -7,9 +7,14 @@
     <p>{{ formatDate(supportData[0].startDate) }} - {{ formatDate(supportData[0].finishDate) }}</p>
     <p *ngIf="supportData[0].sample">| Próba: {{ supportData[0].sample }}</p>
   </div>
-  <div class="poll-line">
+  <div class="poll-line" *ngIf="showLastPollInfo">
     <p *ngIf="supportData.length > 1">Porównanie z sondażem {{supportData[1].pollster}} z {{ formatDate(supportData[1].startDate) }} - {{ formatDate(supportData[1].finishDate) }}</p>
     <p *ngIf="supportData.length == 1">Pierwszy sondaż {{supportData[0].pollster}}</p>
+  </div>
+  <div *ngIf="showArea" class="poll-line">
+    <p *ngIf="supportData[0].area=='BRU'">Region Stołeczny Brukseli</p>
+    <p *ngIf="supportData[0].area=='WAL'">Region Waloński</p>
+    <p *ngIf="supportData[0].area=='VLG'">Region Flamandzki</p>
   </div>
 </div>
 <div #supportGraphContainer class="support-graph-container">

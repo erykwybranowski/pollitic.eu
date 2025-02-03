@@ -1,47 +1,129 @@
-.country-list {
+/* --- Newest Polls Section --- */
+.newest-polls-section {
   h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
     text-align: center;
-  }
-
-  .flag-grid {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-
-  .flag-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
   }
+  .newest-polls-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .newest-poll {
+    min-width: 300px;
+    margin: 0 20px;
+    cursor: pointer;
+  }
+  .poll-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* center header content */
+    margin-bottom: 10px;
+  }
+  .poll-header .country-flag {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+  .poll-header .country-name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .arrow {
+    background-color: #ccc;
+    border: 2px solid #999;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
 
-  .flag-item {
+/* --- Government Blocks Section --- */
+.government-section {
+  h2 {
+    text-align: center;
+    margin: 40px 0 20px;
+  }
+  .government-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* two blocks per row on desktop */
+    gap: 20px;
+    padding: 0 20px;
+  }
+  .government-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .party-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  .party-details {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    position: relative;
+    cursor: pointer;
+  }
+  .party-color-bar {
+    width: 10px;
+    min-height: 150px; /* adjusted height */
+    margin-right: 10px;
+  }
+  .government-info {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    margin-right: 10px;
+  }
+  .government-info .country-flag {
+    width: 50px;  /* scaled down */
+    height: 50px;
+    object-fit: cover;
+    margin-bottom: 5px;
+  }
+  .government-info .country-name {
+    font-size: 14px; /* scaled down */
+    font-weight: bold;
+  }
+  .views-graph-container {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    height: 150px;
+    margin-right: 20px;
+  }
+  .views-graph-container app-views-graph {
+    transform: scale(0.375);
+    transform-origin: top;
+  }
+}
 
-    &:hover {
-      transform: scale(1.05);
-    }
-
-    .country-flag {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-    }
-
-    .country-name {
-      margin-top: 10px;
-      font-size: 14px;
-      text-align: center;
-    }
+/* --- Mobile Adjustments --- */
+@media (max-width: 768px) {
+  .government-grid {
+    grid-template-columns: 1fr !important; /* one block per row on mobile */
+  }
+  .party-color-bar {
+    min-height: 100px;
+  }
+  .party-color-bar {
+    min-height: 100px;
+  }
+  app-views-graph {
+    transform: scale(0.25);
   }
 }

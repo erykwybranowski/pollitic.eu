@@ -1,11 +1,54 @@
-<div class="country-list">
-  <h2>Kraje UE</h2>
-  <div class="flag-grid">
-    <div class="flag-row" *ngFor="let row of countryRows">
-      <div class="flag-item" *ngFor="let country of row" (click)="goToCountry(country.countryCode)">
-        <img [src]="getFlagPath(country.countryCode)" [alt]="country.name" class="country-flag" />
-        <span class="country-name">{{ country.name }}</span>
+<!-- Newest Polls Section -->
+<div class="newest-polls-section">
+  <h2>Najnowsze sondaże</h2>
+  <div class="newest-polls-container">
+    <button class="arrow left-arrow" (click)="goToPreviousNewestPoll()"> &lt; </button>
+    <div class="newest-poll" *ngIf="newestPolls.length > 0"
+         (click)="goToCountry(getCountryCodeForPoll(newestPolls[currentNewestPollIndex]))">
+      <div class="poll-header">
+        <img [src]="getFlagPath(getCountryCodeForPoll(newestPolls[currentNewestPollIndex]))"
+             [alt]="getCountryName(getCountryCodeForPoll(newestPolls[currentNewestPollIndex]))"
+             class="country-flag">
+        <span class="country-name">
+          {{ getCountryName(getCountryCodeForPoll(newestPolls[currentNewestPollIndex])) }}
+        </span>
+      </div>
+      <app-support-graph [supportData]="[newestPolls[currentNewestPollIndex]]"
+                         [parties]="getPartiesForCountry(getCountryCodeForPoll(newestPolls[currentNewestPollIndex]))"
+                          showLastPollInfo=false>
+      </app-support-graph>
+    </div>
+    <button class="arrow right-arrow" (click)="goToNextNewestPoll()"> &gt; </button>
+  </div>
+</div>
+
+<!-- Government Blocks Section -->
+<div class="government-section">
+  <h2>Państwa UE i rządy</h2>
+  <div class="government-grid">
+    <div class="government-block"
+         *ngFor="let gov of governmentBlocks"
+         (click)="goToCountry(gov.country.countryCode)">
+      <div class="party-item">
+        <div class="party-details">
+          <div class="party-color-bar"
+               [ngStyle]="{'background': getPartyColorGradient(gov.government)}"></div>
+          <div class="government-info">
+            <img [src]="getFlagPath(gov.country.countryCode)"
+                 [alt]="gov.country.name"
+                 class="country-flag">
+            <span class="country-name">{{ gov.country.name }}</span>
+          </div>
+          <div class="views-graph-container" *ngIf="gov.government">
+            <app-views-graph [party]="gov.government"
+                             [leftIcons]="true"
+                             [rightIcons]="true"
+                             class="views-graph">
+            </app-views-graph>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+

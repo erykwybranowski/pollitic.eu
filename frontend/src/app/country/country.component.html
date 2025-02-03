@@ -1,5 +1,13 @@
 <div class="party-list">
-  <h2>{{ countryName }}: Kompozycja Parlamentu</h2>
+  <div class="poll-header">
+    <img [src]="getFlagPath(countryCode)"
+         [alt]="countryName"
+         class="country-flag">
+    <h1 class="country-name">
+          {{ countryName }}
+        </h1>
+  </div>
+  <h2>Kompozycja Parlamentu</h2>
 
 <!--  Parliament composition-->
   <app-support-graph *ngIf="getPartiesForGraph().length > 0" [parties]="getPartiesForGraph()" (partySelected)="scrollToParty($event)"></app-support-graph>
@@ -32,7 +40,17 @@
   </div>
 
   <h2>Wykres poparcia</h2>
-  <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls()"></app-polling-graph>
+  <div *ngIf="countryCode != 'be'">
+    <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls()"></app-polling-graph>
+  </div>
+  <div *ngIf="countryCode == 'be'">
+    <h3>Region Stołeczny Brukseli:</h3>
+    <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls('BRU')"></app-polling-graph>
+    <h3>Region Waloński:</h3>
+    <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls('WAL')"></app-polling-graph>
+    <h3>Region Flamandzki:</h3>
+    <app-polling-graph *ngIf="getPartiesForPolls().length > 0 && getPolls().length > 0" [countryCode]="countryCode" [parties]="getPartiesForPolls()" [polls]="getPolls('VLG')"></app-polling-graph>
+  </div>
 
   <h2>Najnowsze sondaże</h2>
   <div class="support-graph-container">

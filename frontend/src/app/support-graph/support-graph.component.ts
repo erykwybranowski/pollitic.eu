@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  AfterViewInit, booleanAttribute,
   Component,
   ElementRef,
   EventEmitter,
@@ -28,6 +28,7 @@ import {Poll} from "../models/poll.model";
 export class SupportGraphComponent implements OnChanges, AfterViewInit {
   @Input() parties: Party[] = []; // List of Party objects
   @Input() supportData: Poll[] = []; // List of support data pairs [acronym - support number]
+  @Input({transform: booleanAttribute}) showLastPollInfo: boolean = true;
   @ViewChild('supportGraphContainer') supportGraphContainer!: ElementRef;
   @ViewChild('supportGraph') supportGraph!: ElementRef;
   @Output() partySelected = new EventEmitter<string>();
@@ -37,6 +38,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   chesEuParties: (Party & { support?: number })[] = [];  // Array for parties with CHES_EU
 
   isDesktop: boolean = true;
+  showArea: boolean = false;
 
   constructor() {
   }
@@ -57,8 +59,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
       this.supportGraphContainer.nativeElement.style.justifyContent = 'flex-start';
     }
 
-    const numChesEuParties = this.chesEuParties.length;
-    this.supportGraphContainer.nativeElement.style.setProperty('--num-ch-eu-parties', numChesEuParties);
+    this.supportGraphContainer.nativeElement.style.setProperty('--num-ch-eu-parties', this.chesEuParties.length);
   }
 
   @HostListener('window:resize', [])
@@ -81,6 +82,9 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
         this.maxNumber = Math.max(this.maxNumber, result.value);
         return { ...this.parties.find(p => p.id == result.partyId)!, support: result.value, leftIcons: !this.isDesktop, rightIcons: !this.isDesktop };
       });
+      if (this.supportData[0].area) {
+        this.showArea = true;
+      }
     } else {
       // Use MP numbers for visualization
       this.sortedParties = this.parties.map(party => {
@@ -101,6 +105,9 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
 
     // Filter parties with CHES_EU
     this.chesEuParties = this.sortedParties.filter(p => p.cheS_EU !== null);
+    if (this.supportGraphContainer && this.supportGraphContainer.nativeElement) {
+      this.supportGraphContainer.nativeElement.style.setProperty('--num-ch-eu-parties', this.chesEuParties.length);
+    }
   }
 
   calculateChesScore(party: Party): number {

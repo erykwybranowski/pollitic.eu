@@ -222,4 +222,17 @@
       margin: 0; // Remove default margin for a clean look
     }
   }
+
+  @media (max-width: 768px) {
+
+    padding: 0 50px; /* 50px free space on the left and right */
+
+    .poll-line {
+      display: block;
+      p {
+        white-space: normal; /* Allow text wrapping */
+        word-wrap: break-word;
+      }
+    }
+  }
 }
