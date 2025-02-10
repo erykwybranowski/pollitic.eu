@@ -80,7 +80,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       const countryParties = this.parties.filter(p => p.countryCode === country.countryCode && p.englishName != "Composite-party");
       const government = this.computeGovernment(countryParties);
       return { country, government };
-    }).filter(block => block.government != null);
+    }).filter(block => block.government != null)
+      .sort((a, b) => a.country.name.localeCompare(b.country.name));
   }
 
   computeGovernment(parties: Party[]): Party | null {
