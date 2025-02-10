@@ -368,27 +368,20 @@ public class PollUpdateService : BackgroundService
     /// </summary>
     private async Task<bool> PollExistsAsync(List<Poll> polls, Poll poll, CancellationToken cancellationToken)
     {
-        // Pre-serialize the media list for the poll we're checking.
-        var serializedMedia = string.Join(",", poll.Media);
-
-        // Filter by all conditions except Media on the database server.
-        var candidatePolls = polls
-            .Where(p =>
-                p.Pollster == poll.Pollster &&
-                p.StartDate == poll.StartDate &&
-                p.FinishDate == poll.FinishDate &&
-                p.Type == poll.Type &&
-                p.Sample == poll.Sample &&
-                Math.Abs(p.Others - poll.Others) < 0.0001 && // Tolerance for doubles
-                p.Area == poll.Area
-            );
-
-        // Now, filter in-memory using the serialized media comparison.
-        var candidatePoll = candidatePolls.FirstOrDefault(p => string.Join(",", p.Media) == serializedMedia);
+        // Filter candidate polls by comparing the key fields and using the Date property for date fields.
+        var candidatePoll = polls.FirstOrDefault(p =>
+            p.Pollster == poll.Pollster &&
+            p.StartDate.Date == poll.StartDate.Date &&      // Compare dates rounded to day
+            p.FinishDate.Date == poll.FinishDate.Date &&    // Compare dates rounded to day
+            p.Type == poll.Type &&
+            p.Sample == poll.Sample &&
+            Math.Abs(p.Others - poll.Others) < 0.0001 &&     // Tolerance for numeric comparison
+            p.Area == poll.Area
+        );
 
         if (candidatePoll == null)
         {
-            // No poll with matching main attributes and media found.
+            // No poll with matching attributes found.
             return false;
         }
 
@@ -398,14 +391,14 @@ public class PollUpdateService : BackgroundService
             return false;
         }
 
-        // Sort poll results by PartyId (adjust the sorting key if needed)
-        var candidateResults = candidatePoll.Results.OrderBy(r => r.PartyId).ToList();
-        var newPollResults = poll.Results.OrderBy(r => r.PartyId).ToList();
+        // Sort poll results by PartyId (adjust if needed)
+        var candidateResults = candidatePoll.Results.OrderBy(r => r.Party.Acronym).ToList();
+        var newPollResults = poll.Results.OrderBy(r => r.Party.Acronym).ToList();
 
         // Compare each poll result.
         for (int i = 0; i < candidateResults.Count; i++)
         {
-            if (candidateResults[i].PartyId != newPollResults[i].PartyId ||
+            if (candidateResults[i].Party.Acronym != newPollResults[i].Party.Acronym ||
                 Math.Abs(candidateResults[i].Value - newPollResults[i].Value) > 0.0001)
             {
                 return false;
