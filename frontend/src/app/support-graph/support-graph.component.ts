@@ -45,6 +45,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
 
   ngOnChanges() {
     this.updateIsDesktop();
+    this.maxNumber = 0;
     this.processData();
   }
 

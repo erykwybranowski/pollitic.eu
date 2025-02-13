@@ -27,19 +27,8 @@ COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 # Copy the Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy the default config and SSL config
-COPY default.conf /etc/nginx/prebuild/default.conf
-COPY default-ssl.conf /etc/nginx/prebuild/default-ssl.conf
-
-ARG ENABLE_SSL=false
-ENV ENABLE_SSL=$ENABLE_SSL
-
-# Conditionally use the SSL configuration
-RUN if [ "$ENABLE_SSL" = "true" ]; then \
-    cp /etc/nginx/prebuild/default-ssl.conf /etc/nginx/conf.d/default.conf; \
-else \
-    cp /etc/nginx/prebuild/default.conf /etc/nginx/conf.d/default.conf; \
-    fi
+# Copy the default config
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80 and 443
 EXPOSE 80

@@ -63,7 +63,7 @@ export class CountryComponent implements OnInit {
         console.error('Error loading parties', error);
       },
       complete: () => {
-        console.log('Parties loading complete');
+        // console.log('Parties loading complete');
       },
     });
   }
@@ -71,8 +71,6 @@ export class CountryComponent implements OnInit {
   private loadPolls() {
     this.partyService.getPolls(this.countryCode, this.parties).subscribe((polls) => {
       this.polls = polls;
-      console.log("Polls loading complete")
-
     });
   }
 
