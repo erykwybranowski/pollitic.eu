@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.email=ertykki@gmail.com
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --api.insecure=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - my_network
+
   db:
     image: mysql:8.0
     environment:
@@ -8,8 +28,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
     networks:
@@ -17,14 +35,9 @@ services:
 
   backend:
     build: ./backend
-    ports:
-      - "8080:8080"  # Use port 8080 for HTTP
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - DefaultConnection=Server=db;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};
-      - ENABLE_SSL=${ENABLE_SSL}
-    volumes:
-      - ./certs:/app/certs
     depends_on:
       - db
     networks:
@@ -34,19 +47,27 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        ENABLE_SSL: ${ENABLE_SSL}
-    volumes:
-      - ./certs:/etc/ssl/certs
-    ports:
-      - "4200:80"
     depends_on:
       - backend
     networks:
       - my_network
+    labels:
+      - "traefik.enable=true"
+      # HTTP router: redirect to HTTPS
+      - "traefik.http.routers.frontend-http.rule=${APP_DOMAIN}"
+      - "traefik.http.routers.frontend-http.entrypoints=web"
+      - "traefik.http.routers.frontend-http.middlewares=redirect-to-https@docker"
+      # HTTPS router: serve content securely
+      - "traefik.http.routers.frontend-https.rule=${APP_DOMAIN}"
+      - "traefik.http.routers.frontend-https.entrypoints=websecure"
+      - "traefik.http.routers.frontend-https.tls.certresolver=le"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # Define redirect middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
 volumes:
   dbdata:
+  letsencrypt:
 
 networks:
   my_network:
