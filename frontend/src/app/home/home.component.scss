@@ -6,15 +6,16 @@
   }
   .newest-polls-container {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    flex-direction: column;
     position: relative;
+    max-width: 100%;
+    overflow: hidden;
   }
   .newest-poll {
-    min-width: 300px;
-    margin: 0 20px;
+    flex: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
     cursor: pointer;
   }
   .poll-header {
@@ -33,23 +34,11 @@
     font-size: 16px;
     font-weight: bold;
   }
-  .arrow {
-    background-color: #ccc;
-    border: 2px solid #999;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 
 /* --- Government Blocks Section --- */
 .government-section {
+  overflow: hidden;
   h2 {
     text-align: center;
     margin: 40px 0 20px;
@@ -58,7 +47,6 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* two blocks per row on desktop */
     gap: 20px;
-    padding: 0 20px;
   }
   .government-block {
     display: flex;
@@ -88,6 +76,7 @@
     flex-direction: column;
     align-items: center;
     margin-right: 10px;
+    max-width: 200px;
   }
   .government-info .country-flag {
     width: 50px;  /* scaled down */
@@ -104,7 +93,8 @@
     display: flex;
     justify-content: flex-end;
     height: 150px;
-    margin-right: 20px;
+    margin-right: -40px;
+    max-width: 300px;
   }
   .views-graph-container app-views-graph {
     transform: scale(0.375);
@@ -125,5 +115,58 @@
   }
   app-views-graph {
     transform: scale(0.25);
+  }
+
+  .arrows {
+    position: absolute;
+    top: 60px; /* Arrows appear 60px lower over the graph */
+    left: 0;
+    right: 0;
+    margin: 0;
+    z-index: 10;
+  }
+}
+
+@media (min-width: 769px) {
+  .arrows {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0; /* Remove mobile margin for desktop */
+    width: 100%; /* Arrows span the full container width */
+  }
+
+  .arrow.left-arrow {
+    left: 0;
+  }
+
+  .arrow.right-arrow {
+    right: 0;
+  }
+}
+
+.arrows {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px; /* Adds spacing between arrows and graph for mobile */
+  z-index: 10; /* Ensures arrows stay on top */
+}
+
+.arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border: 2px solid #999;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #bbb;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import {Component, Input, OnInit, ViewChild, ElementRef, NgZone, HostListener} from '@angular/core';
 import { Poll } from '../models/poll.model';
 import { Party } from '../models/party.model';
 import { Chart, registerables } from 'chart.js';
@@ -30,6 +30,11 @@ export class PollingGraphComponent implements OnInit {
     this.createGraph();
   }
 
+  @HostListener('window:resize', [])
+  onResize() {
+    this.createGraph();
+  }
+
   private createGraph(): void {
     if (this.chart) {
       this.chart.destroy();
@@ -38,8 +43,7 @@ export class PollingGraphComponent implements OnInit {
     // Get the canvas element from the template
     const canvasElement = this.canvasRef.nativeElement;
     if (canvasElement) {
-      const screenWidth = window.innerWidth;
-      canvasElement.height = Math.max(500, Math.min(screenWidth / 2, 500)); // Adjust these values as needed
+      canvasElement.height = 500;
     }
 
     const partySupportOverTime = this.processPolls();

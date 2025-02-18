@@ -2,7 +2,10 @@
 <div class="newest-polls-section">
   <h2>Najnowsze sondaże</h2>
   <div class="newest-polls-container">
-    <button class="arrow left-arrow" (click)="goToPreviousNewestPoll()"> &lt; </button>
+    <div class="arrows">
+      <button class="arrow left-arrow" (click)="goToPreviousNewestPoll()"> &lt; </button>
+      <button class="arrow right-arrow" (click)="goToNextNewestPoll()"> &gt; </button>
+    </div>
     <div class="newest-poll" *ngIf="newestPolls.length > 0"
          (click)="goToCountry(getCountryCodeForPoll(newestPolls[currentNewestPollIndex]))">
       <div class="poll-header">
@@ -18,7 +21,6 @@
                           showLastPollInfo=false>
       </app-support-graph>
     </div>
-    <button class="arrow right-arrow" (click)="goToNextNewestPoll()"> &gt; </button>
   </div>
 </div>
 

@@ -66,6 +66,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   @HostListener('window:resize', [])
   onResize() {
     this.updateIsDesktop();
+    this.ngAfterViewInit();
   }
 
   updateIsDesktop() {
