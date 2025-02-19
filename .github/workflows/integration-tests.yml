@@ -45,6 +45,13 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Start Frontend Server
+        working-directory: ./frontend
+        run: nohup npm run start &
+
+      - name: Wait for Frontend to be Ready
+        run: sleep 15
+
       - name: Run Cypress E2E Tests
         working-directory: ./frontend
         run: npm run cypress:run
