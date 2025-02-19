@@ -19,7 +19,7 @@
 </div>
 <div #supportGraphContainer class="support-graph-container">
   <div #supportGraph class="support-graph">
-    <div class="arrow"></div> <!-- Arrow above party columns -->
+    <div class="arrow"></div>
     <div class="party-column" *ngFor="let party of sortedParties" (click)="onPartyClick(party.acronym)">
       <div class="views-graph-wrapper">
         <app-views-graph [party]="party" [leftIcons]="party.leftIcons" [rightIcons]="party.rightIcons" class="views-graph"></app-views-graph>

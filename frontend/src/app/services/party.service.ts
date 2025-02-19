@@ -18,10 +18,8 @@ export class PartyService {
   // Method to get countries
   getCountries(): Observable<Country[]> {
     if (environment.production) {
-      // Production: You will later implement this with HTTP calls
       return this.http.get<Country[]>(`${environment.apiUrl}/countries`);
     } else {
-      // Development version: hardcoded countries list
       return of([
         {id: "1", countryCode: 'at', name: 'Austria'},
         {id: "2", countryCode: 'be', name: 'Belgia'},
@@ -102,20 +100,26 @@ export class PartyService {
         map(polls => polls.map(p => ({
           id: p.id,
           pollster: p.pollster,
-          media: p.media ?? [], // Ensure `media` is an array
-          startDate: new Date(p.startDate), // Convert to JavaScript `Date`
-          finishDate: new Date(p.finishDate), // Convert to JavaScript `Date`
+          media: p.media ?? [],
+          startDate: new Date(p.startDate),
+          finishDate: new Date(p.finishDate),
           type: p.type,
-          sample: p.sample ?? null, // Ensure `sample` is `null` if missing
+          sample: p.sample ?? null,
           results: p.results.map(r => ({
             partyId: r.partyId,
             value: r.value
-          })), // Ensure correct result structure
+          })),
           others: p.others,
-          area: p.area ?? undefined, // Ensure optional `area` property is handled
+          area: p.area ?? undefined,
           countryCode: p.countryCode
         })))
       );
+    // }
+  }
+
+  getGroups(): Observable<Group[]> {
+    // if (environment.production) {
+    return this.http.get<Group[]>(`${environment.apiUrl}/groups`);
     // }
   }
 
@@ -135,9 +139,7 @@ export class PartyService {
     // }
   }
 
-
-
-  // Helper to read local .ropf file (simulate this)
+  // Helper to read local .ropf file
   private readLocalFile(filePath: string, polls: boolean = false): Observable<string[]> {
     const fileUrl = `${filePath}`;
     return this.http.get(fileUrl, { responseType: 'text' }).pipe(
@@ -190,7 +192,7 @@ export class PartyService {
     const englishName = this.extractField(line, '•EN:') || "Error";
 
     // Look for any "•" marker that is not "•EN" and use it for the localName
-    const localNames = this.extractLocalNames(line);  // Updated to handle multiple local names
+    const localNames = this.extractLocalNames(line);
 
     // Look for the number of MPs using the "•MP" marker
     const mp = this.extractField(line, '•MP:') ? parseInt(this.extractField(line, '•MP:')!, 10) : null;
@@ -257,19 +259,18 @@ export class PartyService {
       stringId: stringId,
       acronym: acronym,
       englishName: englishName,
-      localName: localNames,  // Now supports multiple local names
+      localName: localNames,
       countryCode: country,
       cheS_EU: null,
       cheS_Economy: null,
       cheS_Progress: null,
       cheS_Liberal: null,
-      subParties: subParties,  // Subparties populated based on stringIds
-      groups: groupObjects ? new Set<Group>(groupObjects) : uniqueGroups,  // Inherit groups from sub-parties if no group is defined for the parent party
-      mp: mp,  // Number of MPs
-      role: role  // Role of the party, if any
+      subParties: subParties,
+      groups: groupObjects ? new Set<Group>(groupObjects) : uniqueGroups,
+      mp: mp,
+      role: role
     };
   }
-
 
   private applyRoleToSubParties(subParties: Party[], role: Set<string>): void {
     subParties.forEach(subParty => {
@@ -423,7 +424,7 @@ export class PartyService {
   }
 
   private readCHESData(): Observable<any[]> {
-    const filePath = `${environment.localDataPath}CHES.txt`; // Adjust this if needed
+    const filePath = `${environment.localDataPath}CHES.txt`;
     return this.http.get(filePath, { responseType: 'text' }).pipe(
       map((fileContent: string) => {
         return this.parseCHESData(fileContent);
@@ -552,24 +553,19 @@ export class PartyService {
       map(polls => polls.map(p => ({
         id: p.id,
         pollster: p.pollster,
-        media: p.media ?? [], // Ensure `media` is an array
-        startDate: new Date(p.startDate), // Convert to JavaScript `Date`
-        finishDate: new Date(p.finishDate), // Convert to JavaScript `Date`
+        media: p.media ?? [],
+        startDate: new Date(p.startDate),
+        finishDate: new Date(p.finishDate),
         type: p.type,
-        sample: p.sample ?? null, // Ensure `sample` is `null` if missing
+        sample: p.sample ?? null,
         results: p.results.map(r => ({
           partyId: r.partyId,
           value: r.value
-        })), // Ensure correct result structure
+        })),
         others: p.others,
-        area: p.area ?? undefined, // Ensure optional `area` property is handled
+        area: p.area ?? undefined,
       })))
     );
-    // const ropfFilePath = `${environment.localDataPath}${countryCode}.ropf`;
-    //
-    // return this.readLocalFile(ropfFilePath, true).pipe(
-    //   map((lines: string[]) => this.extractPollsFromLines(lines, parties))
-    // );
   }
 
 

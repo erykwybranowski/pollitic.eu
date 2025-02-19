@@ -20,7 +20,6 @@ $square-width: 50px;
 
   border-right: 2px solid grey;  // Ensures rightmost vertical line is visible
   border-bottom: 2px solid grey;  // Ensures bottommost horizontal line is visible
-  //left: 120px; /* Move the graph 120px to the right */
 
   /* Left side icons */
   .left-icons {
@@ -142,7 +141,6 @@ $square-width: 50px;
       position: absolute;
       z-index: 3;  // Value squares below icons and connectors but above the grey rectangle
       transform: scaleY(0.7) + scaleX(0.4);  // Scale down to 70% of original size
-      //transform: scaleX(0.5);  // Scale down to 70% of original size
       transform-origin: center;  // Scale from the center of each square
 
       &.blue {

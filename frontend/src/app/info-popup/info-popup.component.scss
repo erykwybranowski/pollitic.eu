@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.popup-container {
+  background: #fff;
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  border-radius: 8px;
+}
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.popup-content {
+  margin-top: 40px;
+}
+.popup-content h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.popup-content h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.popup-content p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.groups-list {
+  margin-bottom: 20px;
+}
+.group-item {
+  margin-bottom: 10px;
+}
+.group-acronym {
+  font-weight: bold;
+}
+.axes {
+  margin: 20px 0;
+}
+.axis {
+  margin-bottom: 15px;
+}
+.axis-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.axis-values img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.views-graph-container {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  height: 210px;
+  margin-right: 0;
+}
+app-views-graph {
+  transform: scale(0.47);
+  transform-origin: top;
+  margin-bottom: 0;
+}

@@ -134,7 +134,7 @@ export class CountryComponent implements OnInit {
       if (party.subParties && party.subParties.length > 0) {
         party.subParties.forEach(subParty => {
           subPartyIds.add(subParty.id);
-          collectSubPartyIds(subParty); // Recursively collect subparties
+          collectSubPartyIds(subParty);
         });
       }
     };
@@ -171,7 +171,7 @@ export class CountryComponent implements OnInit {
       if (party.subParties && party.subParties.length > 0) {
         party.subParties.forEach(subParty => {
           subPartyIds.add(subParty.id);
-          collectSubPartyIds(this.parties.find(p => p.id == subParty.id)!); // Recursively collect subparties
+          collectSubPartyIds(this.parties.find(p => p.id == subParty.id)!);
         });
       }
     };
@@ -212,11 +212,9 @@ export class CountryComponent implements OnInit {
       const colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})
         .map(group => `rgb(${group.r}, ${group.g}, ${group.b}), rgb(${group.r}, ${group.g}, ${group.b})`);
 
-      // If there are multiple colors, return a linear gradient
       return `linear-gradient(${colors.join(', ')})`;
     }
 
-    // If no group, return gray
     return 'gray';
   }
 
@@ -262,7 +260,6 @@ export class CountryComponent implements OnInit {
     });
   }
 
-  // Calculate margin-left based on sublevel and screen size
   calculateMarginLeft(subLevel: number): string {
     const baseMargin = this.screenWidth <= 768 ? 30 : 50; // Use a smaller margin for mobile
     return `${subLevel * baseMargin}px`;
@@ -286,9 +283,6 @@ export class CountryComponent implements OnInit {
       result.push(previousPoll);
     }
     return result;
-    // return this.polls[number].results.map((result) => ({
-    //   acronym: result.party.map(p => p.stringId).join("+"),
-    //   support: Math.round(result.value * 10) / 10}))
   }
 
   goToPreviousPoll(): void {

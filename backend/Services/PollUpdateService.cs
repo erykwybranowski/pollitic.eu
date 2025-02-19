@@ -65,8 +65,6 @@ public class PollUpdateService : BackgroundService
         foreach (var country in countries)
         {
             // Build the raw GitHub URL for the .ropf file using the country's CountryCode.
-            // Example: for "de" the URL will be:
-            // https://raw.githubusercontent.com/Europe-Elects/apopod/main/de.ropf
             var fileUrl = $"https://raw.githubusercontent.com/Europe-Elects/apopod/main/{country.CountryCode.ToLower()}.ropf";
 
             // Get the file content from GitHub.
@@ -122,7 +120,6 @@ public class PollUpdateService : BackgroundService
                 {
                     // New poll found; add it to the DbContext.
                     dbContext.Polls.Add(poll);
-                    // If needed, add associated PollResults or other related entities here.
                 }
             }
         }
@@ -231,7 +228,6 @@ public class PollUpdateService : BackgroundService
                         var party = parties.FirstOrDefault(p => p.StringId == sub && p.CountryCode == countryCode);
                         if (party == null)
                         {
-                            // Call your CreateParty method to create the missing party.
                             party = CreateParty(sub, countryCode);
                             parties.Add(party);
                             dbContext.Parties.Add(party);
@@ -283,7 +279,6 @@ public class PollUpdateService : BackgroundService
             Acronym = acronym,
             StringId = acronym,
             EnglishName = "Composite-party",
-            // Properly create a list of strings for LocalName.
             LocalName = new List<string> { acronym },
             Groups = groups,
             Role = roles,
@@ -364,7 +359,6 @@ public class PollUpdateService : BackgroundService
     
     /// <summary>
     /// Checks if a poll already exists in the database by comparing its attributes (except the Id).
-    /// Adjust the comparison logic as needed.
     /// </summary>
     private async Task<bool> PollExistsAsync(List<Poll> polls, Poll poll, CancellationToken cancellationToken)
     {
@@ -431,7 +425,6 @@ public class PollUpdateService : BackgroundService
                 if (existing != null)
                 {
                     existing.PollId = newestPoll.Id;
-                    // Optionally update other related properties if needed.
                     _context.Update(existing);
                 }
                 else

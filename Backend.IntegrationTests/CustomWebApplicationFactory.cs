@@ -10,42 +10,34 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend.IntegrationTests
 {
-    // TStartup is your Program class. Make sure Program is declared as partial.
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Force the environment to "IntegrationTest" so that Program.cs registers InMemory.
             builder.UseEnvironment("IntegrationTest");
 
             builder.ConfigureServices(services =>
             {
-                // Remove any existing registrations for AppDbContext options.
                 var descriptors = services.Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)).ToList();
                 foreach (var descriptor in descriptors)
                 {
                     services.Remove(descriptor);
                 }
 
-                // Now register AppDbContext using the InMemory provider.
                 services.AddDbContext<AppDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryTestDb");
                 });
 
-                // Build the service provider.
                 var sp = services.BuildServiceProvider();
 
-                // Create a scope and seed the database.
                 using (var scope = sp.CreateScope())
                 {
                     var scopedServices = scope.ServiceProvider;
                     var db = scopedServices.GetRequiredService<AppDbContext>();
 
-                    // Ensure the database is created.
                     db.Database.EnsureCreated();
 
-                    // Seed the database, but only if not already seeded.
                     SeedData(db);
                 }
             });
@@ -53,10 +45,9 @@ namespace Backend.IntegrationTests
 
         private void SeedData(AppDbContext context)
         {
-            // Check if data is already seeded.
             if (context.Countries.Any(c => c.CountryCode == "pl"))
             {
-                return; // Data already exists, so skip seeding.
+                return;
             }
 
             // Create a sample country.
