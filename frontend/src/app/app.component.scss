@@ -29,7 +29,7 @@ header {
   width: 100%;
   background-color: var(--main-blue-color);
   color: #fff;
-  padding: 0 0;
+  padding: 0;
   z-index: 1000; /* Ensure the header is above other content */
 
 
@@ -38,6 +38,7 @@ header {
     justify-content: space-between;
     align-items: center;
     margin: 0 auto;
+    max-width: 1240px;
 
     .logo {
       flex: 1;
@@ -47,6 +48,18 @@ header {
       img {
         max-height: 50px;
         display: block;
+      }
+    }
+    .info-trigger {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      a {
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        font-size: x-large;
       }
     }
   }
@@ -64,7 +77,7 @@ main {
   @media (min-width: 768px) {
     max-width: 1200px; /* Set max width for larger screens */
     margin: 0 auto; /* Center the content by auto margins */
-    padding-left: 20px; /* Optional: some padding for nicer layout */
+    padding-left: 20px;
     padding-right: 20px;
   }
 }
@@ -73,15 +86,15 @@ footer {
   width: 100%;
   background-color: var(--main-blue-color);
   color: #fff;
-  padding-left: 20px; /* Added padding to the sides */
-  padding-right: 20px; /* Added padding to the sides */
-  padding-top: 40px; /* Added padding to the sides */
-  text-align: left; /* Ensure text is left aligned */
-  margin-top: auto; /* Push footer to the bottom */
-  position: relative; /* To position the triangles */
-  overflow: hidden; /* To hide the part of triangles outside the footer */
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 40px;
+  text-align: left;
+  margin-top: auto;
+  position: relative;
+  overflow: hidden;
   display: flex;
-  justify-content: center; /* Center the content horizontally */
+  justify-content: center;
 }
 
 .footer-content {
@@ -93,14 +106,14 @@ footer {
   flex-wrap: wrap; /* Allows the columns to wrap on smaller screens */
   gap: 20px; /* Space between the columns */
   position: relative; /* Position relative for z-index */
-  z-index: 2; /* Higher z-index to be in front of the triangles */
+  z-index: 2;
   padding-right: 40px;
 }
 
 nav a {
   color: #fff;
   text-decoration: none;
-  padding: 10px 20px; /* Adjust as needed */
+  padding: 10px 20px;
   display: inline-block; /* Ensure the padding does not cause overflow */
 }
 

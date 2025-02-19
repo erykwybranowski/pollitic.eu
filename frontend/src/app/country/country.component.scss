@@ -78,7 +78,7 @@
 
     .party-color-bar {
       width: 8px;
-      min-height: 100%; /* Extend color bar to full height */
+      min-height: 100%;
       position: absolute;
       left: 0;
       top: 0;
@@ -99,15 +99,14 @@
 
     .views-graph-container {
       justify-content: center;
-      /* Explicit height matching the scaled graph */
       height: 210px;
       margin-right: 0;
       margin-top: 10px;
     }
 
     app-views-graph {
-      transform: scale(0.47); /* Fixed scale */
-      margin-bottom: 0; /* Ensure no extra space below graph */
+      transform: scale(0.47);
+      margin-bottom: 0;
     }
 
     .support-graph-container {
@@ -115,7 +114,7 @@
     }
     .support-graph-container .arrows {
       position: absolute;
-      top: 60px; /* Arrows appear 60px lower over the graph */
+      top: 60px;
       left: 0;
       right: 0;
       margin: 0;
@@ -133,8 +132,8 @@
   .arrows {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px; /* Adds spacing between arrows and graph for mobile */
-    z-index: 10; /* Ensures arrows stay on top */
+    margin-bottom: 10px;
+    z-index: 10;
   }
 
   .arrow {
@@ -159,9 +158,9 @@
   .scrollable-graph {
     flex: 1;
     overflow-x: auto;
-    white-space: nowrap; /* Keeps graph content in a single row */
-    margin-top: 10px; /* Adds spacing for mobile */
-    max-width: 100%; /* Ensures graph stays within bounds */
+    white-space: nowrap;
+    margin-top: 10px;
+    max-width: 100%;
   }
 
   @media (min-width: 769px) {
@@ -175,8 +174,8 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      margin: 0; /* Remove mobile margin for desktop */
-      width: 100%; /* Arrows span the full container width */
+      margin: 0;
+      width: 100%;
     }
 
     .arrow.left-arrow {
@@ -189,9 +188,9 @@
 
     .scrollable-graph {
       flex-grow: 1;
-      margin: 0 60px; /* Leaves space for the arrows */
-      max-width: calc(100% - 120px); /* Accounts for arrow widths */
-      display: block; /* Ensures visibility */
+      margin: 0 60px;
+      max-width: calc(100% - 120px);
+      display: block;
     }
   }
 }
@@ -214,7 +213,7 @@
 .poll-header {
   display: flex;
   align-items: center;
-  justify-content: center; /* center header content */
+  justify-content: center;
   margin-bottom: 10px;
 }
 .poll-header .country-flag {

@@ -126,13 +126,13 @@
 
     .support-label-desktop {
       position: absolute;
-      top: -25px; /* Adjust label height above the bar */
-      left: 50%; /* Center horizontally */
-      transform: translateX(-50%); /* Adjust for centering */
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
       font-weight: bold;
       color: black;
       text-align: center;
-      white-space: nowrap; /* Prevent wrapping of label text */
+      white-space: nowrap;
     }
   }
 
@@ -216,21 +216,21 @@
   .poll-line {
     display: flex;
     justify-content: center;
-    gap: 5px; // Space between elements in the same line
+    gap: 5px;
 
     p {
-      margin: 0; // Remove default margin for a clean look
+      margin: 0;
     }
   }
 
   @media (max-width: 768px) {
 
-    padding: 0 50px; /* 50px free space on the left and right */
+    padding: 0 50px;
 
     .poll-line {
       display: block;
       p {
-        white-space: normal; /* Allow text wrapping */
+        white-space: normal;
         word-wrap: break-word;
       }
     }

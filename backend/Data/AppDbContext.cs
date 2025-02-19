@@ -204,7 +204,7 @@ namespace backend.Data
 
                 // Configure the relationship to Party
                 entity.HasOne(pr => pr.Party)
-                    .WithMany(party => party.Results) // No navigation property on Party
+                    .WithMany(party => party.Results)
                     .HasForeignKey(pr => pr.PartyId)
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
@@ -226,24 +226,22 @@ namespace backend.Data
                     .IsRequired()
                     .HasColumnType("varchar(10)");
 
-                // PollId is required
                 entity.Property(e => e.PollId)
                     .IsRequired();
 
                 // Configure relationships:
                 // Each LatestPoll has one Poll. (Assuming Poll.Id is a Guid.)
                 entity.HasOne(e => e.Poll)
-                    .WithMany()  // or .WithOne() if Poll has a navigation property
+                    .WithMany()
                     .HasForeignKey(e => e.PollId)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 // Each LatestPoll relates to one Country.
                 entity.HasOne(e => e.Country)
-                    .WithMany()  // or .WithOne() if Country has a navigation property
+                    .WithMany()
                     .HasForeignKey(e => e.CountryCode)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // Optionally specify the table name:
                 entity.ToTable("LatestPolls");
             });
 

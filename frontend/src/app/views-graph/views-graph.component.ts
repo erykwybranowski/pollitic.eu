@@ -64,7 +64,7 @@ export class ViewsGraphComponent implements OnChanges {
       // If CHES value is a range
       this.addSquare(squaresArray, chesValue[0], chesValue[0] < 0 ? 'yellow' : (chesValue[0] == 0 ? "center" : "blue"));  // First value
       this.addSquare(squaresArray, chesValue[1], chesValue[1] < 0 ? 'yellow' : (chesValue[1] == 0 ? "center" : "blue"));  // Second value
-      this.addRangeConnector(connectorsArray, chesValue[0], chesValue[1]);  // Updated range connector logic
+      this.addRangeConnector(connectorsArray, chesValue[0], chesValue[1]);
     } else if (chesValue && chesValue != 0) {
       // If CHES value is a single value
       this.addSquare(squaresArray, chesValue, chesValue > 0 ? 'blue' : 'yellow');

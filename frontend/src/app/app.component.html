@@ -5,6 +5,9 @@
         <img src="logo1.png" alt="Logo">
       </a>
     </div>
+    <div class="info-trigger">
+      <a href="#" (click)="openInfoPopup($event)">ⓘ</a>
+    </div>
   </nav>
 </header>
 
@@ -17,3 +20,5 @@
   </div>
 </footer>
 
+<!-- Include the InfoPopupComponent when needed -->
+<app-info-popup *ngIf="showInfoPopup" (closed)="closeInfoPopup()"></app-info-popup>

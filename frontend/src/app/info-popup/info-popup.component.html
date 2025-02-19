@@ -1,0 +1,108 @@
+<div class="overlay">
+  <div class="popup-container">
+    <button class="close-button" (click)="close()">X</button>
+    <div class="popup-content">
+      <!-- Section 1: Explanation of graphs, icons, and groups -->
+      <h1>Co oznaczają wykresy, ikony i grupy?</h1>
+      <h2>Grupy</h2>
+      <p>
+        W Parlamencie Europejskim występuje 8 grup. Partie z każdego kraju UE współtworzą grupy o zbliżonych wartościach politycznych. Dzięki podziałowi na grupy, łatwiej zrozumiesz przybliżone wartości danych partii przed zagłębieniem się w jej szczegółowe oceny. Grupy mają swoje kolory i właśnie tymi kolorami zabarwione są słupki i wykresy partii do nich należących.
+      </p>
+      <p>Obecne grupy to:</p>
+      <div class="groups-list">
+        <div class="group-item" *ngFor="let group of groups">
+          <span class="group-acronym" [ngStyle]="{'color': getRgbString(group)}"><strong>{{ group.acronym }}</strong></span>
+          - <span class="group-description">{{ getGroupDescription(group.acronym) }}</span>
+        </div>
+      </div>
+
+      <!-- Section 2: Explanation of opinion graphs -->
+      <h2>Wykresy oceny poglądów</h2>
+      <p>
+        Wykresy wykorzystują oceny ekspertów Uniwersytetu Karoliny Północnej w Chapel Hill przedstawione w analizie europejskich partii politycznych, "Chapel Hill Expert Survey" - "CHES" z 2019 roku. Oceny ekspertów zostały podzielone na cztery osie: ekonomiczną, światopoglądową, obywatelską i europejską. Dla każdej osi przedstawiono pozycję partii w dwóch przeciwnych kierunkach oraz intensywność tej pozycji.
+      </p>
+      <div class="axes">
+        <div class="axis">
+          <p><strong>Dla osi ekonomicznej:</strong></p>
+          <div class="axis-values">
+            <img src="/assets/icons/socialism.png" alt="Lewicowe, socjalne">
+            <span>Lewicowe, socjalne</span>
+            <img src="/assets/icons/capitalism.png" alt="Prawicowe, liberalne">
+            <span>Prawicowe, liberalne</span>
+          </div>
+        </div>
+        <div class="axis">
+          <p><strong>Dla osi światopoglądowej:</strong></p>
+          <div class="axis-values">
+            <img src="/assets/icons/progressivism.png" alt="Progresywne">
+            <span>Progresywne</span>
+            <img src="/assets/icons/conservatism.png" alt="Konserwatywne">
+            <span>Konserwatywne</span>
+          </div>
+        </div>
+        <div class="axis">
+          <p><strong>Dla osi obywatelskiej:</strong></p>
+          <div class="axis-values">
+            <img src="/assets/icons/liberalism.png" alt="Liberalne">
+            <span>Liberalne</span>
+            <img src="/assets/icons/authoritarianism.png" alt="Autorytarne">
+            <span>Autorytarne</span>
+          </div>
+        </div>
+        <div class="axis">
+          <p><strong>Dla osi europejskiej:</strong></p>
+          <div class="axis-values">
+            <img src="/assets/icons/eu.png" alt="Pro-europejskie">
+            <span>Pro-europejskie</span>
+            <img src="/assets/icons/nationalism.png" alt="Eurosceptyczne">
+            <span>Eurosceptyczne</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Example party view graph -->
+      <p><strong>Dla przykładu, partia o wykresie:</strong></p>
+      <div class="views-graph-container">
+        <app-views-graph *ngIf="exampleParty" [party]="exampleParty" [leftIcons]="true" [rightIcons]="true"></app-views-graph>
+      </div>
+      <p>
+        Posiada następujące oceny:
+        <br>- gospodarczo: od lekko prawicowych do umiarkowanie prawicowych,
+        <br>- światopoglądowo: od lekko progresywnych do umiarkowanie progresywnych,
+        <br>- obywatelsko: od lekko liberalnych do umiarkowanie liberalnych,
+        <br>- europejsko: mocno pro-europejska.
+      </p>
+      <p>
+        Partie są oceniane samodzielnie lub na podstawie ocen ich pod-partii (w przypadku partii koalicyjnych). Analogicznie jest z wykresem rządu, którego ocena pochodzi od wszystkich partii tworzących koalicję rządzącą. Wykresy poglądów rządów są dostępne na stronach poszczególnych krajów oraz w liście na stronie głównej.
+      </p>
+
+      <!-- Section 4: Explanation of Parliament composition -->
+      <h2>Kompozycja parlamentu</h2>
+      <p>
+        Wykres kompozycji parlamentu przedstawia partie obecnie występujące w parlamencie (dla dwuizbowych – w izbie niższej) oraz liczbę parlamentarzystów każdej z nich.
+        Zaznaczone są grupy, do których należą partie, ich poglądy oraz koalicja rządząca.
+      </p>
+      <p>
+        Partie są umieszczone na osi według wartości ocenionych w CHES, przy czym pozycja jest orientacyjna.
+      </p>
+
+      <!-- Section 5: Explanation of Support graph -->
+      <h2>Wykres poparcia</h2>
+      <p>
+        Wykres przedstawia zmianę poparcia dla partii politycznych w ciągu ostatnich 5 lat. Kolory słupków odpowiadają kolorom grup, do których należą partie.
+      </p>
+
+      <!-- Section 6: Explanation of Newest Polls -->
+      <h2>Najnowsze sondaże</h2>
+      <p>
+        Podobnie jak w kompozycji parlamentu, wykres przedstawia partie, ich wykresy poglądów, pozycje i grupy. Zamiast liczby parlamentarzystów, prezentowane jest poparcie z danego sondażu oraz jego szczegóły. Dla strony kraju porównanie z poprzednim badaniem również jest widoczne.
+      </p>
+
+      <!-- Section 7: Explanation of Party List -->
+      <h2>Lista partii</h2>
+      <p>
+        Lista partii prezentuje partie i koalicje. Dla każdej partii widoczna jest nazwa, grupa, liczba posłów, rola oraz wykres poglądów. Partie koalicyjne mają również listę swoich partii członkowskich.
+      </p>
+    </div>
+  </div>
+</div>

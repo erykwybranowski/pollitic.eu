@@ -204,7 +204,7 @@ export class PollingGraphComponent implements OnInit {
         this.colorsUsed[selectedGroup.acronym] = this.colorsUsed[selectedGroup.acronym] ? this.colorsUsed[selectedGroup.acronym] + 1 : 1;
         this.partyColors[party] = `rgb(${R}, ${G}, ${B})`;
       } else {
-        this.partyColors[party] = 'gray'; // Default color for parties with no group
+        this.partyColors[party] = 'gray';
       }
     }
   }

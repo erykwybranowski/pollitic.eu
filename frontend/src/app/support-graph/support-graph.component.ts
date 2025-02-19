@@ -34,7 +34,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   @Output() partySelected = new EventEmitter<string>();
 
   maxNumber: number = 0;
-  sortedParties: (Party & { support?: number, previousSupport?: number, leftIcons: boolean, rightIcons: boolean })[] = []; // Add optional support field
+  sortedParties: (Party & { support?: number, previousSupport?: number, leftIcons: boolean, rightIcons: boolean })[] = [];
   chesEuParties: (Party & { support?: number })[] = [];  // Array for parties with CHES_EU
 
   isDesktop: boolean = true;
@@ -70,7 +70,7 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
   }
 
   updateIsDesktop() {
-    this.isDesktop = window.innerWidth >= 768; // Define 768px as the desktop threshold
+    this.isDesktop = window.innerWidth >= 768;
   }
 
   processData() {
@@ -143,11 +143,9 @@ export class SupportGraphComponent implements OnChanges, AfterViewInit {
         colors = Array.from(party.groups).sort((a, b) => {return a.id - b.id})
           .map(group => `rgb(${group.r}, ${group.g}, ${group.b}), rgb(${group.r}, ${group.g}, ${group.b})`);
       }
-      // If there are multiple colors, return a linear gradient
       return `linear-gradient(to right, ${colors.join(', ')})`;
     }
 
-    // If no group, return gray
     if (previousPoll) {
       return 'lightgray';
     }

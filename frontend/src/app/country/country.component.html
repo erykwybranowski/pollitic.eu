@@ -114,7 +114,7 @@
           <p>Liczba posłów: {{ party.mp || 0 }}</p>
         </div>
 
-        <!-- Views graph container now adjusted for mobile layout in CSS -->
+        <!-- Views graph container -->
         <div class="views-graph-container" *ngIf="party.cheS_Liberal != null">
           <app-views-graph [party]="party" [leftIcons]="true" [rightIcons]="true" class="views-graph"></app-views-graph>
         </div>
