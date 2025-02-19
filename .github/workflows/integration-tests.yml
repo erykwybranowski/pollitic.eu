@@ -1,0 +1,30 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: ./backend
+        run: dotnet restore
+
+      - name: Build
+        working-directory: ./backend
+        run: dotnet build --configuration Release
+
+      - name: Run Tests
+        run: dotnet test ./Backend.IntegrationTests/Backend.IntegrationTests.csproj --configuration Release --no-build

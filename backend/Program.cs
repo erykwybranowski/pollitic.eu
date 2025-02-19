@@ -6,7 +6,7 @@ using backend.Services;
 
 namespace backend
 {
-    public static class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
@@ -21,10 +21,18 @@ namespace backend
             builder.Services.AddControllers();
 
             // Configure services
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(Environment.GetEnvironmentVariable("DefaultConnection"),
-                    new MySqlServerVersion(new Version(8, 0, 25)),
-                    opt => opt.CommandTimeout(1200)));
+            if (builder.Environment.IsEnvironment("IntegrationTest"))
+            {
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseInMemoryDatabase("InMemoryTestDb"));
+            }
+            else
+            {
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseMySql(Environment.GetEnvironmentVariable("DefaultConnection"),
+                        new MySqlServerVersion(new Version(8, 0, 25)),
+                        opt => opt.CommandTimeout(1200)));
+            }
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -60,11 +68,19 @@ namespace backend
             app.UseCors("AllowAll"); // Use CORS policy
             app.UseAuthorization();
             app.MapControllers();
-            Console.WriteLine("Applying migrations");
-            using (var scope = app.Services.CreateScope())
+            // Conditionally run migrations only if not in IntegrationTest environment
+            if (!builder.Environment.IsEnvironment("IntegrationTest"))
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();
+                Console.WriteLine("Applying migrations...");
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    dbContext.Database.Migrate();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Skipping migrations in IntegrationTest environment.");
             }
             Console.WriteLine("App started");
             app.Run();
