@@ -17,6 +17,7 @@ export class PollingGraphComponent implements OnInit {
 
   // Get the canvas element using a template reference variable
   @ViewChild('pollingGraphCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  private previousWidth: number = window.innerWidth;
 
   chart: Chart | null = null;
   colorsUsed: Record<string, number> = {};
@@ -32,7 +33,13 @@ export class PollingGraphComponent implements OnInit {
 
   @HostListener('window:resize', [])
   onResize() {
-    this.createGraph();
+    const currentWidth = window.innerWidth;
+    if (currentWidth !== this.previousWidth) {
+      this.previousWidth = currentWidth;
+      this.colorsUsed = {};
+      this.partyColors = {};
+      this.createGraph();
+    }
   }
 
   private createGraph(): void {
@@ -166,7 +173,7 @@ export class PollingGraphComponent implements OnInit {
       let groups = new Set<Group>();
       if (party.includes("+")) {
         party.split("+").forEach((acronym) => {
-          let groupSet = this.parties.find((party) => party.acronym === acronym)?.groups;
+          let groupSet = this.parties.find((party) => party.acronym.toUpperCase() === acronym.toUpperCase() || party.stringId.toUpperCase() === acronym.toUpperCase())?.groups;
           if (groupSet) {
             groupSet.forEach(group => {
               if (!groups.has(group)) groups.add(group);
@@ -174,7 +181,7 @@ export class PollingGraphComponent implements OnInit {
           }
         });
       } else {
-        let groupSet = this.parties.find((p) => p.acronym === party)?.groups;
+        let groupSet = this.parties.find((p) => p.acronym.toUpperCase() === party.toUpperCase() || p.stringId.toUpperCase() === party.toUpperCase())?.groups;
         if (groupSet) {
           groupSet.forEach(group => {
             if (!groups.has(group)) groups.add(group);

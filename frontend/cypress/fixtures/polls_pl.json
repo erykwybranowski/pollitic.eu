@@ -1,0 +1,16 @@
+[
+  {
+    "id": "d5df1361-a1dc-49a7-9470-530bf70507da",
+    "pollster": "Ipsos",
+    "media": ["TVP"],
+    "startDate": "2025-01-14T00:00:00",
+    "finishDate": "2025-01-16T00:00:00",
+    "type": "N",
+    "sample": 1000,
+    "results": [
+      { "partyId": "2c5966a5-3b78-4d68-9234-758522d86edd", "value": 32.2 }
+    ],
+    "others": 2,
+    "area": ""
+  }
+]

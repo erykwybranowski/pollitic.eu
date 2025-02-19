@@ -1,0 +1,20 @@
+[
+  {
+    "id": "2c5966a5-3b78-4d68-9234-758522d86edd",
+    "stringId": "ZP",
+    "acronym": "ZP",
+    "englishName": "United Right",
+    "countryCode": "pl",
+    "localName": [ "Zjednoczona Prawica" ],
+    "CHES_EU": [1],
+    "CHES_Economy": [-1],
+    "CHES_Progress": [3],
+    "CHES_Liberal": [3],
+    "subParties": [],
+    "groups": [
+      { "id": -3, "acronym": "ECR", "name": "European Conservatives and Reformists", "r": 39, "g": 44, "b": 186 }
+    ],
+    "mp": 0,
+    "role": []
+  }
+]
