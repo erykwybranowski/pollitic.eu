@@ -26,11 +26,11 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/pollitic.eu
-            echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" | sudo tee .env
-            echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" | sudo tee -a .env
-            echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" | sudo tee -a .env
-            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" | sudo tee -a .env
-            echo "APP_DOMAIN=$(echo '${{ secrets.APP_DOMAIN }}' | sed 's/(/\\(/g; s/)/\\)/g')" | sudo tee -a .env
+            sudo bash -c "echo \"MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}\" > .env"
+            sudo bash -c "echo \"MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}\" >> .env"
+            sudo bash -c "echo \"MYSQL_USER=${{ secrets.MYSQL_USER }}\" >> .env"
+            sudo bash -c "echo \"MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}\" >> .env"
+            sudo bash -c "echo \"APP_DOMAIN=${{ secrets.APP_DOMAIN }}\" >> .env"
             sudo git pull origin main
             sudo docker-compose down
             sudo docker-compose up --build -d
