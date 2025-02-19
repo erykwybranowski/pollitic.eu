@@ -26,11 +26,19 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/pollitic.eu
-            export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
-            export MYSQL_DATABASE="${MYSQL_DATABASE}"
-            export MYSQL_USER="${MYSQL_USER}"
-            export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
-            export APP_DOMAIN="${APP_DOMAIN}"
+            # Write the environment variables to a .env file in the project directory
+            cat > .env <<EOF
+            MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE=${MYSQL_DATABASE}
+            MYSQL_USER=${MYSQL_USER}
+            MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            APP_DOMAIN=${APP_DOMAIN}
+            EOF
+
+            # For debugging, you could echo the .env file (remove or mask sensitive info in production)
+            # cat .env
+
             sudo git pull origin main
             sudo docker-compose down
-            sudo -E docker-compose up --build -d
+            # Use sudo -E to preserve the environment (if you still need it) but .env will be read automatically
+            sudo docker-compose up --build -d
